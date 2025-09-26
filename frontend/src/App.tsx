@@ -20,7 +20,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="">
+    <div className=" mt-22">
       <Outlet /> {/* router pages will be injected here */}
     </div>
   );
