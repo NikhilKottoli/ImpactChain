@@ -4,7 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 // Function to setup Lenis with GSAP ScrollTrigger
-export const setupLenisGSAP = (lenis) => {
+export const setupLenisGSAP = (lenis: any) => {
   // Synchronize Lenis scrolling with GSAP's ScrollTrigger plugin
   lenis.on("scroll", ScrollTrigger.update);
 
