@@ -16,13 +16,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       onwarn(warning, warn) {
-        if (warning.code === 'UNUSED_EXTERNAL_IMPORT') return
-        warn(warning)
-      }
-    }
+        if (warning.code === "UNUSED_EXTERNAL_IMPORT") return;
+        warn(warning);
+      },
+    },
   },
 
   esbuild: {
-    logOverride: { 'this-is-undefined-in-esm': 'silent' }
-  }
+    logOverride: { "this-is-undefined-in-esm": "silent" },
+  },
 });

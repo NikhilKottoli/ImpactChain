@@ -8,9 +8,13 @@ import App from "./App";
 import Login from "./pages/Login/Login";
 import Navbar from "./components/Navbar";
 import Cards from "./pages/Cards/Cards";
-
-// import Home from "./pages/Home";
-// import About from "./pages/About";
+import SocialFeed from "./pages/SocialFeed/SocialFeed";
+import CampaignList from "./pages/Campaigns/CampaignList";
+import AttestationDashboard from "./pages/Attestations/AttestationDashboard";
+import DatasetMarketplace from "./pages/Datasets/DatasetMarketplace";
+import CreatePost from "./pages/CreatePost/CreatePost";
+import CreateCampaign from "./pages/CreateCampaign/CreateCampaign";
+import Dashboard from "./pages/Dashboard/Dashboard";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -19,10 +23,17 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Navbar />
         <Routes>
           <Route path="/" element={<App />}>
-            <Route index element={<Home />} />
+            <Route index element={<Dashboard />} />
+            <Route path="home" element={<Home />} />
             <Route path="login" element={<Login />} />
             <Route path="cards" element={<Cards />} />
-            {/* <Route path="about" element={<About />} /> */}
+            <Route path="social-feed" element={<SocialFeed />} />
+            <Route path="campaigns" element={<CampaignList />} />
+            <Route path="attestations" element={<AttestationDashboard />} />
+            <Route path="datasets" element={<DatasetMarketplace />} />
+            <Route path="create-post" element={<CreatePost />} />
+            <Route path="create-campaign" element={<CreateCampaign />} />
+            <Route path="dashboard" element={<Dashboard />} />
           </Route>
         </Routes>
       </div>
