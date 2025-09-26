@@ -2,7 +2,8 @@ import React from "react";
 import { Link } from "react-router";
 import FormButton from "../../components/FormButton";
 import Input from "@/components/Input";
-import { LockIcon, User } from "lucide-react";
+import { ArrowUpLeftIcon, LockIcon, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Login() {
   return (
@@ -26,31 +27,46 @@ export default function Login() {
           <img src="/logo.png" alt="" className="w-30 h-20" />
           <div className="flex-1"></div>
           <div className="w-full mx-auto">
-            <h2 className="text-2xl font-bold text-gray-900">Log In</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Sign In</h2>
             <p className="mt-2 text-sm text-gray-600">
               Enter your email and password to access your account
             </p>
 
-            <Input
-              type="text"
-              placeholder="Enter email /username"
-              icon={<User size={20} />}
-              className="mt-4"
-            />
-            <Input
-              type="password"
-              placeholder="Enter your password"
-              icon={<LockIcon size={20} />}
-              className="mt-6"
-            />
+            <div className="mt-8 group ">
+              <Button
+                onClick={() => {}}
+                variant="outline"
+                className="w-full flex text-sm h-32 flex-col px-0 pr-4 cursor-pointer bg-black/10 rounded-xl hover:bg-[#f5f5f5]"
+              >
+                <Button
+                  variant="outline"
+                  className="w-full flex text-sm h-32 flex-col px-0 pr-2 group-hover:pr-4 cursor-pointer bg-black/0 rounded-xl hover:bg-[#f5f5f5]"
+                >
+                  <Button
+                    variant="outline"
+                    className="w-full flex text-sm h-32 flex-col px-0 pr-4 relative p-2 cursor-pointer bg-[#f0f0f0] rounded-xl scale-105 translate-x-2"
+                  >
+                    <div className="border border-dashed border-black/30 w-full h-full flex gap-4 justify-center items-center cursor-pointer rounded-lg">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"
+                        className="w-16 h-16"
+                      />
+                      <p className="text-left text-black">
+                        Continue with <br /> MetaMask
+                      </p>
+                      <ArrowUpLeftIcon
+                        size={32}
+                        className="rotate-90 scale-[2] opacity-45 text-black"
+                      />
+                    </div>
+                  </Button>
+                </Button>
+              </Button>
+            </div>
 
-            <Link to="#">
-              <FormButton>Sign Up</FormButton>
-            </Link>
-
-            <div className="text-center mt-6 text-xs text-gray-600">
+            <div className="text mt-6 text-xs text-gray-600">
               Already have an account?{" "}
-              <Link to="#" className="text-violet-600 font-semibold">
+              <Link to="#" className="text-blue-400 font-semibold">
                 Login
               </Link>
             </div>
