@@ -20,7 +20,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="mb-32 lg:mt-32 lg:mb-0 mt-0  h-full">
+    <div className="pb-32 lg:pt-32 lg:pb-0 pt-0 h-full">
       <Outlet />
     </div>
   );

@@ -6,16 +6,9 @@ import { LockIcon, User } from "lucide-react";
 
 export default function Login() {
   return (
-    <div
-      style={{
-        background: `linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.4)), url('https://img.freepik.com/free-vector/gradient-grainy-gradient-background_23-2149922133.jpg?semt=ais_hybrid&w=740&q=80')`,
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-      }}
-      className="min-h-screen flex flex-col justify-center items-center"
-    >
+    <div className=" h-full flex flex-col justify-center items-center py-20 bg-red overflow-hidden">
       <div
-        className="rounded-[28px] flex w-full max-w-7xl h-full max-h-[800px] overflow-hidden"
+        className="rounded-[100px] flex w-full max-w-5xl h-full max-h-[800px] overflow-hidden"
         style={{
           boxShadow:
             "0 4px 24px 8px rgba(0,0,0,0.05), inset 0 1px 6px 0 rgba(0,0,0,0.08), inset 0 -1px 6px 0 rgba(0,0,0,0.05)",
@@ -27,10 +20,10 @@ export default function Login() {
           className="flex-1 max-w-[550px] p-20 py-20 flex flex-col"
           style={{
             background:
-              "linear-gradient(to bottom, #f9f9f9e0 0%, #e1e1e1e0 100%)",
+              "linear-gradient(to bottom, rgba(255,255,255) 0%, rgba(230,245,255,0.7) 100%)",
           }}
         >
-          <img src="/logo.svg" alt="" className="w-10 h-10" />
+          <img src="/logo.png" alt="" className="w-30 h-20" />
           <div className="flex-1"></div>
           <div className="w-full mx-auto">
             <h2 className="text-2xl font-bold text-gray-900">Log In</h2>
@@ -68,7 +61,7 @@ export default function Login() {
         <div
           className="flex-1 flex items-center justify-center relative"
           style={{
-            background: "rgba(0,0,0,0.6)",
+            background: "rgba(0,0,0,0.02)",
             backgroundPosition: "left",
             backgroundSize: "cover",
           }}
@@ -78,8 +71,8 @@ export default function Login() {
             style={{
               width: "90%",
               height: "90%",
-              borderTop: "2px solid rgba(0,0,0,0.4)",
-              borderLeft: "2px solid rgba(0,0,0,0.4)",
+              borderTop: "2px solid rgba(0,0,0,0.1)",
+              borderLeft: "2px solid rgba(0,0,0,0.1)",
               boxSizing: "border-box",
               paddingTop: "12px",
               paddingLeft: "12px",
@@ -89,7 +82,7 @@ export default function Login() {
             }}
           >
             <img
-              className="w-full h-full object-cover rounded-tl-2xl border border-black/30"
+              className="w-full h-full object-cover rounded-tl-2xl "
               src="/demo.png"
               alt=""
               style={{ objectPosition: "left" }}
