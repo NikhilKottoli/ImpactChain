@@ -4,8 +4,6 @@ import { Outlet } from "react-router-dom";
 
 import { setupLenisGSAP } from "@/utils/gsap";
 import "lenis/dist/lenis.css";
-import Navbar from "./components/Navbar";
-import BgDynamic from "./components/BgDynamic";
 
 export default function App() {
   useEffect(() => {

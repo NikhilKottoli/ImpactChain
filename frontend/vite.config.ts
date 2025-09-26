@@ -12,4 +12,17 @@ export default defineConfig({
       "~components": path.resolve(__dirname, "./src/components"),
     },
   },
+
+  build: {
+    rollupOptions: {
+      onwarn(warning, warn) {
+        if (warning.code === 'UNUSED_EXTERNAL_IMPORT') return
+        warn(warning)
+      }
+    }
+  },
+
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' }
+  }
 });
