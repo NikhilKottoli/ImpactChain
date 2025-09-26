@@ -25,13 +25,4 @@ export default defineConfig({
   esbuild: {
     logOverride: { "this-is-undefined-in-esm": "silent" },
   },
-
-  server: {
-    allowedHosts: [
-      "*",
-      "unbackward-mushy-rosalina.ngrok-free.dev",
-      ".ngrok-free.dev", // Allow all ngrok-free.dev subdomains
-      ".ngrok.dev",      // Allow all ngrok.dev subdomains
-    ],
-  },
 });

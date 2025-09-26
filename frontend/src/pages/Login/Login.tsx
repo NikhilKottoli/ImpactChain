@@ -66,7 +66,7 @@ export default function Login() {
 
             <div className="text mt-6 text-xs text-gray-600">
               Already have an account?{" "}
-              <Link to="#" className="text-blue-400 font-semibold">
+              <Link to="#" className="text-blue-300 font-semibold">
                 Login
               </Link>
             </div>

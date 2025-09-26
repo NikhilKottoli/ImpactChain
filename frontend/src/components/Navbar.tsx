@@ -24,12 +24,29 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="flex items-center justify-between px-12 py-6  bg- fixed w-full top-0 left-0 z-50 ">
+      <nav className="flex items-center justify-between px-12 py-6   fixed w-full top-0 left-0 z-50 ">
         {/* Left: Platform Logo */}
-        <div className="flex items-center">
-          <img src="/logo.png" alt="Platform Logo" className="h-20  mr-3" />
-          <span className="font-semibold text-xl"></span>
-        </div>
+        <Link to="/" className="flex items-center">
+          <img src="/logo.png" alt="Platform Logo" className="h-12 mr-3" />
+          <div>
+            <span className="font-bold text-xl text-gray-900">ImpactDAO</span>
+            <p className="text-xs text-gray-600">Social Impact Platform</p>
+          </div>
+        </Link>
+
+        {/* Center: Create Actions
+        <div className="hidden md:flex items-center space-x-3">
+          <Link to="/create-post">
+            <button className="px-4 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-full hover:from-green-600 hover:to-blue-600 text-sm font-medium">
+              + Create Post
+            </button>
+          </Link>
+          <Link to="/create-campaign">
+            <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full hover:from-purple-600 hover:to-blue-600 text-sm font-medium">
+              + Create Campaign
+            </button>
+          </Link>
+        </div> */}
 
         {/* Right: ENS-Enhanced Wallet & Profile */}
         <div className="flex items-center gap-2">

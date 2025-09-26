@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import { useContract } from '../hooks/useContract';
 import { useLighthouseUpload } from '../hooks/useLighthouse';
 import { lighthouseUtils } from '../utils/lighthouse';
-import { id } from 'ethers';
 import { walletConnection } from '@/utils/wallet';
-
-const account = await walletConnection.getCurrentAccount();
 
 export const PostCreatorWithLighthouse: React.FC = () => {
   const { createPost, isLoading: isCreatingPost, error: contractError } = useContract();
@@ -134,7 +131,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           title: formData.title,
           description: formData.description,
           ipfs_hash: imageHash,          
-          creator: account
+          creator: await walletConnection.getCurrentAccount()
         })
       });
 
