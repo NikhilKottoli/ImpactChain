@@ -13,11 +13,12 @@ import CreatePost from "./pages/Social/CreatePost";
 import TestConfig from "./pages/Social/TestConfig";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import LandingPage from "./pages/LandingPage/LandingPage";
+import BgDynamic from "./components/BgDynamic";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <div className="absolute inset-0 -z-10 h-full w-full bg-[#FBF3F0] [background:radial-gradient(125%_125%_at_50%_80%,#FBF3F0_40%,#26AFE0_100%)] ">
+      <BgDynamic>
         <Routes>
           {/* Dashboard route (with Navbar) */}
           <Route
@@ -59,7 +60,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             </Route>
           </Route>
         </Routes>
-      </div>
+      </BgDynamic>
     </BrowserRouter>
   </React.StrictMode>
 );

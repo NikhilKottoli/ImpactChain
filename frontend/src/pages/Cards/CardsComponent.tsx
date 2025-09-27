@@ -3,9 +3,12 @@ import React, {
   useRef,
   useImperativeHandle,
   forwardRef,
+  useEffect,
 } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import type { PanInfo } from "framer-motion";
+import { useGlowStore } from "../../stores/glowStore";
+import getMajorityColor from "../../utils/MajorityColor";
 
 // Types
 interface CardData {
@@ -180,6 +183,18 @@ const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(
     const leftLabelOpacity = useTransform(x, [-thresholdPx, -20, 0], [1, 0, 0]);
     const rightLabelOpacity = useTransform(x, [0, 20, thresholdPx], [0, 0, 1]);
 
+    // Color overlay transforms for swipe feedback
+    const leftOverlayOpacity = useTransform(
+      x,
+      [-thresholdPx, -10, 0],
+      [0.3, 0.1, 0]
+    );
+    const rightOverlayOpacity = useTransform(
+      x,
+      [0, 10, thresholdPx],
+      [0, 0.1, 0.3]
+    );
+
     // Stack positioning for layered effect
     const stackOffset = Math.min(index, stackSize - 1);
     const stackScale = 1 - stackOffset * 0.05;
@@ -300,20 +315,30 @@ const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(
         aria-label={`Post ${index + 1} by ${card.username}`}
       >
         {/* Main Card */}
-        <div className="bg-white rounded-4xl shadow-lg h-[32rem] w-full max-w-md mx-auto overflow-hidden border border-gray-200">
+        <div className="bg-white rounded-4xl shadow-lg h-[32rem] w-full max-w-md mx-auto overflow-hidden border border-gray-200 relative">
+          {/* Color Overlay for Swipe Feedback */}
+          <motion.div
+            className="absolute inset-0 bg-red-500/50 rounded-4xl pointer-events-none z-10"
+            style={{ opacity: leftOverlayOpacity }}
+          />
+          <motion.div
+            className="absolute inset-0 bg-green-500/50 rounded-4xl pointer-events-none z-10"
+            style={{ opacity: rightOverlayOpacity }}
+          />
+
           {/* Custom or Default Content */}
-          {renderContent(card)}
+          <div className="relative z-20">{renderContent(card)}</div>
 
           {/* Swipe Labels */}
           <motion.div
-            className="absolute top-6 left-6 bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-xl pointer-events-none"
+            className="absolute top-6 left-6 bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-xl pointer-events-none z-30"
             style={{ opacity: leftLabelOpacity }}
           >
             SKIP
           </motion.div>
 
           <motion.div
-            className="absolute top-6 right-6 bg-green-500 text-white px-4 py-2 rounded-lg font-bold text-xl pointer-events-none"
+            className="absolute top-6 right-6 bg-green-500 text-white px-4 py-2 rounded-lg font-bold text-xl pointer-events-none z-30"
             style={{ opacity: rightLabelOpacity }}
           >
             SAVE
@@ -348,7 +373,7 @@ const CardStackDemo: React.FC = () => {
       userAvatar:
         "https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg",
       postImage:
-        "https://images.pexels.com/photos/1557652/pexels-photo-1557652.jpeg?cs=srgb&dl=pexels-lukas-hartmann-304281-1557652.jpg&fm=jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/250px-Image_created_with_a_mobile_phone.png",
       caption: "Homemade carbonara pasta 🍝 Recipe in my bio!",
       likes: 892,
       timestamp: "5 hours ago",
@@ -372,7 +397,7 @@ const CardStackDemo: React.FC = () => {
       userAvatar:
         "https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg",
       postImage:
-        "https://images.pexels.com/photos/1557652/pexels-photo-1557652.jpeg?cs=srgb&dl=pexels-lukas-hartmann-304281-1557652.jpg&fm=jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/250px-Image_created_with_a_mobile_phone.png",
       caption: "Hiking in the Rocky Mountains 🏔️ Nature is the best therapy",
       likes: 3421,
       timestamp: "2 days ago",
@@ -393,6 +418,40 @@ const CardStackDemo: React.FC = () => {
   ]);
 
   const topCardRef = useRef<SwipeCardRef>(null);
+  const { setGlowColor } = useGlowStore();
+
+  // State for smooth background transitions
+  const [currentBgImage, setCurrentBgImage] = useState<string>(
+    cards.length > 0 ? cards[0].postImage : ""
+  );
+  const [nextBgImage, setNextBgImage] = useState<string>("");
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Update glow color based on the next post's image when a swipe happens
+  const updateGlowColorForNextPost = async (remainingCards: CardData[]) => {
+    if (remainingCards.length > 0) {
+      const nextPost = remainingCards[0]; // The new top card after swipe
+      try {
+        const majorityColor = await getMajorityColor(nextPost.postImage);
+        setGlowColor(majorityColor);
+      } catch (error) {
+        console.error("Error getting majority color:", error);
+        // Fallback to default color
+        setGlowColor("#26AFE0");
+      }
+    } else {
+      // No more cards, set to default color
+      setGlowColor("#26AFE0");
+    }
+  };
+
+  // Set initial glow color and background when component mounts
+  useEffect(() => {
+    if (cards.length > 0) {
+      setCurrentBgImage(cards[0].postImage);
+      updateGlowColorForNextPost(cards);
+    }
+  }, []); // Only run on mount
 
   const handleSwipe = (direction: "left" | "right", cardData: CardData) => {
     console.log(
@@ -401,13 +460,83 @@ const CardStackDemo: React.FC = () => {
       }:`,
       cardData
     );
-    setCards((prev) => prev.filter((card) => card.id !== cardData.id));
+
+    // Update cards state
+    const remainingCards = cards.filter((card) => card.id !== cardData.id);
+    setCards(remainingCards);
+
+    // Ultra smooth background transition
+    if (remainingCards.length > 0) {
+      // Start the crossfade immediately
+      setNextBgImage(remainingCards[0].postImage);
+
+      // Small delay to ensure image is loaded, then start transition
+      setTimeout(() => {
+        setIsTransitioning(true);
+      }, 50);
+
+      // Complete the transition after fade duration
+      setTimeout(() => {
+        setCurrentBgImage(remainingCards[0].postImage);
+        setNextBgImage("");
+        setIsTransitioning(false);
+      }, 1500); // Extended smooth transition duration
+    } else {
+      // No more cards, gentle fade out background
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentBgImage("");
+        setNextBgImage("");
+        setIsTransitioning(false);
+      }, 1500);
+    }
+
+    // Update glow color based on the next post's image
+    updateGlowColorForNextPost(remainingCards);
   };
 
   return (
-    <div className="min-h-screen bg-none flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-none flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Smooth Blurred Background Overlay with Crossfade */}
+      <div className="fixed inset-0 -z-10">
+        {/* Current Background Image */}
+        {currentBgImage && (
+          <div
+            className={`absolute inset-0 bg-cover bg-center transition-all duration-[1500ms] ease-out ${
+              isTransitioning ? "opacity-0 scale-110" : "opacity-100 scale-105"
+            }`}
+            style={{
+              backgroundImage: `url(${currentBgImage})`,
+              filter: "blur(25px) brightness(1)",
+              transform: "scale(1.2)",
+              transitionProperty: "opacity, transform, filter",
+              transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          />
+        )}
+
+        {/* Next Background Image for Crossfade */}
+        {nextBgImage && (
+          <div
+            className={`absolute inset-0 bg-cover bg-center transition-all duration-[1500ms] ease-out ${
+              isTransitioning ? "opacity-100 scale-105" : "opacity-0 scale-110"
+            }`}
+            style={{
+              backgroundImage: `url(${nextBgImage})`,
+              filter: "blur(25px) brightness(1)",
+              transform: "scale(1.2)",
+              transitionProperty: "opacity, transform, filter",
+              transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          />
+        )}
+
+        {/* Overlay for better contrast */}
+        <div className="absolute inset-0 bg-white/10 transition-all duration-[1500ms] ease-out" />
+      </div>
+
       <div
-        className="relative w-96 h-[32rem] mb-8"
+        className="relative w-96 h-[32rem] mb-8 z-10"
         role="list"
         aria-label="Swipeable posts"
       >
