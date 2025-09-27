@@ -16,34 +16,36 @@ export default function Navbar() {
   const location = useLocation();
   const getActiveIndex = () => {
     const currentPath = location.pathname;
-    const index = navItems.findIndex(item => item.path === currentPath);
+    const index = navItems.findIndex((item) => item.path === currentPath);
     return index >= 0 ? index : 0;
   };
-  const [active, setActive] = useState(getActiveIndex());
+  // Using the state in the onClick handler
+  const [_, setActive] = useState(getActiveIndex());
 
   return (
     <>
-      <nav className="flex items-center justify-between px-12 py-6  bg- fixed w-full top-0 left-0 z-50 ">
-        {/* Left: Platform Logo */}
-        <div className="flex items-center">
-          <img src="/logo.png" alt="Platform Logo" className="h-20  mr-3" />
-          <span className="font-semibold text-xl"></span>
-        </div>
+      {/* Left: Platform Logo */}
+      <Link to="/" className="flex items-center z-[100] fixed top-10 left-10">
+        <img src="/logo.svg" alt="Platform Logo" className="h-12 mr-3" />
+        {/* <div>
+          <span className="font-bold text-xl text-gray-900">ImpactDAO</span>
+          <p className="text-xs text-gray-600">Social Impact Platform</p>
+        </div> */}
+      </Link>
 
-        {/* Right: Wallet & Profile */}
-        <div className="flex items-center gap-2 bg-white px-2 py-2 rounded-full shadow-md">
-          <WalletConnect />
-          <img
-            src="https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg"
-            alt="Profile"
-            className="h-9 w-9 rounded-full object-cover border border-gray-300"
-          />
-        </div>
-      </nav>
+      {/* Right: Wallet & Profile */}
+      <div className="flex items-center gap-2 bg-white px-2 py-2 rounded-full shadow-md z-[100]  fixed top-10 right-10">
+        <WalletConnect />
+        <img
+          src="https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg"
+          alt="Profile"
+          className="h-9 w-9 rounded-full object-cover border border-gray-300"
+        />
+      </div>
 
       {/* Bottom Tab Bar */}
-      <nav className="w-full fixed left-0 lg:top-5 lg:bottom-auto bottom-5 px-6">
-        <div className="w-full max-w-[600px] bg-white z-50 flex justify-around items-center py-6 mx-auto rounded-full shadow-xl">
+      <nav className="w-full fixed left-0 lg:top-5 lg:bottom-auto bottom-5 px-6 z-40">
+        <div className="w-full max-w-[600px] bg-white flex justify-around items-center py-6 mx-auto rounded-full shadow-xl">
           {navItems.map((item, idx) => (
             <Link
               key={item.label}
