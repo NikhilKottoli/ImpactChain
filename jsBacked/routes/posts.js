@@ -1,7 +1,32 @@
 // routes/posts.js
 const express = require('express');
 const supabaseService = require('../services/SupabaseService');
+// --- Transformers.js Setup ---
+// Use a dynamic import for ES Modules
+let pipeline;
+import('@xenova/transformers').then(mod => {
+    // Get the pipeline function
+    pipeline = mod.pipeline;
+    console.log('[ML Loader] Transformers.js loaded successfully.');
+}).catch(err => {
+    console.error('[ML Loader] Failed to load Transformers.js:', err);
+});
+
+let classifier = null;
+// Use the Xenova-converted model which is optimized for Transformers.js
+const ML_MODEL_NAME = "Xenova/clip-vit-large-patch14";
+// --- End Setup ---
+
 const router = express.Router();
+const axios = require('axios');
+require('dotenv').config();
+
+const CANDIDATE_LABELS = [
+    'community service', 'volunteering', 'environmental conservation', 'animal welfare',
+    'education', 'health and wellness', 'fundraising', 'charity',
+    'humanitarian aid', 'social activism', 'community building', 'tree planting',
+    'recycling', 'food drive', 'mentorship'
+];
 
 /**
  * GET /posts
@@ -65,19 +90,71 @@ router.get('/:tokenId', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     // Basic validation
-    const { creator, title, description, ipfs_hash, ai_labels } = req.body;
+    const { creator, title, description, ipfs_hash, ai_labels, location } = req.body;
     if (!creator || !ipfs_hash) {
         return res.status(400).json({ error: 'Missing required post fields.' });
     }
 
     const newPost = await supabaseService.createPost({
-      creator, title, description, ipfs_hash, ai_labels
+      creator, title, description, ipfs_hash, ai_labels, location
     });
     res.status(201).json(newPost);
   } catch (error) {
     console.error('Error creating post:', error.message);
     res.status(500).json({ error: error.message });
   }
+});
+
+/**
+ * PATCH /posts/:id/classify
+ * Triggers AI classification for a post using a locally-run model.
+ */
+router.patch('/:id/classify', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // 1. Load the classifier if it hasn't been loaded yet.
+        // This will only run on the first request.
+        if (!classifier) {
+            console.log('[ML Classifier] Initializing local zero-shot-image-classification model...');
+            // The model will be downloaded and cached on the first run.
+            // Using the Xenova model, we can use the default (quantized) version.
+            classifier = await pipeline('zero-shot-image-classification', ML_MODEL_NAME);
+            console.log('[ML Classifier] Model initialized successfully.');
+        }
+
+        // 2. Fetch the post from the database to get the IPFS hash
+        const post = await supabaseService.getPostById(id);
+        if (!post || !post.ipfs_hash) {
+            return res.status(404).json({ error: 'Post or IPFS hash not found.' });
+        }
+        const ipfs = post.ipfs_hash.replace('ipfs://', '');
+
+        // 3. Download the image from an IPFS gateway
+        const ipfsGatewayUrl = `https://gateway.lighthouse.storage/ipfs/${ipfs}`;
+        console.log(`[ML Classifier] Downloading image from: ${ipfsGatewayUrl}`);
+        
+        // 4. Classify the image using the local model
+        console.log(`[ML Classifier] Classifying image for post ${id}...`);
+        const classificationResponse = await classifier(ipfsGatewayUrl, CANDIDATE_LABELS);
+
+        // 5. Extract the top 3 labels
+        const topLabels = classificationResponse
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 3)
+            .map(labelInfo => labelInfo.label);
+
+        console.log(`[ML Classifier] Top 3 labels found: ${topLabels.join(', ')}`);
+
+        // 6. Update the post in the database with the new labels
+        const updatedPost = await supabaseService.updatePostAILabels(id, { ai_labels: topLabels });
+
+        res.status(200).json(updatedPost);
+
+    } catch (error) {
+        console.error(`[ML Classifier] Error processing post ${id}:`, error.message);
+        res.status(500).json({ error: 'Failed to classify image and update post.' });
+    }
 });
 
 /**

@@ -70,9 +70,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     let imageHash = '';
     let metadataHash = '';
     let tokenId = 0;
-    // Assuming 'creator' (wallet address) is available from a context or prop
-    // Replace 'yourCreatorWalletAddress' with the actual source (e.g., walletContext.address)
-    const creator = 'yourCreatorWalletAddress'; 
 
     try {
       // Step 1: Upload image and metadata to Lighthouse
@@ -143,7 +140,14 @@ const handleSubmit = async (e: React.FormEvent) => {
       }
 
       const data = await response.json();
+      const post_id = data.id;
+
+      const labelled_post = await fetch(`http://localhost:3000/posts/${post_id}/classify`, {
+        method: 'PATCH',
+      });
+      const labelled_data = await labelled_post.json();
       console.log('Post saved to backend:', data);
+      console.log('Post classified:', labelled_data);
 
       // Reset form on success
       setFormData({

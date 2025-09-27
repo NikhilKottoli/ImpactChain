@@ -25,52 +25,6 @@ contract DataCoin is ERC20, Ownable {
     }
 }
 
-
-/**
- * @title PhotoNFT
- * @dev Represents a contributor's photo as an ERC721 NFT.
- * Each NFT stores metadata like the encrypted IPFS CID and descriptive labels.
- * This contract corresponds to Step 1 in the DataDAO flow.
- */
-contract PhotoNFT is ERC721, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIdCounter;
-
-    struct PhotoMetadata {
-        string encryptedCID;
-        string labels; // e.g., "nature,mountain,day"
-    }
-
-    // Mapping from token ID to its metadata.
-    mapping(uint256 => PhotoMetadata) public photoMetadata;
-
-    constructor(address initialOwner) ERC721("DataDAO PhotoNFT", "PHOTO") Ownable(initialOwner) {}
-
-    /**
-     * @dev Mints a new PhotoNFT and assigns it to a contributor.
-     * In a production environment, you might add access controls to this function.
-     * @param contributor The address of the user uploading the photo.
-     * @param encryptedCID The IPFS CID of the encrypted photo file.
-     * @param labels A comma-separated string of labels for the photo.
-     * @return The ID of the newly minted token.
-     */
-    function mintPhotoNFT(address contributor, string memory encryptedCID, string memory labels) public returns (uint256) {
-        // In a real system, this function might be restricted to a specific minter role
-        // or require a small fee to prevent spam.
-        uint256 tokenId = _tokenIdCounter.current();
-        _safeMint(contributor, tokenId);
-
-        photoMetadata[tokenId] = PhotoMetadata({
-            encryptedCID: encryptedCID,
-            labels: labels
-        });
-
-        _tokenIdCounter.increment();
-        return tokenId;
-    }
-}
-
-
 /**
  * @title DAOTreasury
  * @dev A simple contract to collect the DAO's share of revenue from dataset sales.
@@ -117,7 +71,7 @@ contract DatasetRegistry is ERC721, Ownable {
     // --- State Variables ---
 
     // External contract addresses
-    PhotoNFT public immutable photoNFT;
+    ERC721 public immutable SocialMediaPosts;
     DataCoin public immutable dataCoin;
     DAOTreasury public immutable daoTreasury;
 
@@ -129,8 +83,6 @@ contract DatasetRegistry is ERC721, Ownable {
     // Data Storage
     // Mapping from a DatasetAccess NFT ID to the array of PhotoNFT IDs it contains.
     mapping(uint256 => uint256[]) public datasetPhotos;
-    // Optional mapping to store a hash of a ZK proof for dataset verification.
-    mapping(uint256 => bytes32) public zkProofHashes;
 
     // NEW: Mapping from a contributor's address to their claimable balance.
     mapping(address => uint256) public claimableBalances;
@@ -145,14 +97,14 @@ contract DatasetRegistry is ERC721, Ownable {
     // --- Constructor ---
     constructor(
         address initialOwner,
-        address _photoNFTAddress,
+        address _socialMediaPostsAddress,
         address _dataCoinAddress,
         address _daoTreasuryAddress,
         address _validatorAddress,
         uint256 _daoFeePercentage,
         uint256 _pricePerPhoto
     ) ERC721("DataDAO Dataset Access NFT", "DSET") Ownable(initialOwner) {
-        photoNFT = PhotoNFT(_photoNFTAddress);
+        socialMediaPosts = ERC721(_socialMediaNFTAddress);
         dataCoin = DataCoin(_dataCoinAddress);
         daoTreasury = DAOTreasury(_daoTreasuryAddress);
         validatorAddress = _validatorAddress;
@@ -168,12 +120,10 @@ contract DatasetRegistry is ERC721, Ownable {
      * The buyer must first approve this contract to spend the required amount of DataCoin.
      * @param _photoIDs An array of PhotoNFT token IDs that make up the dataset.
      * @param _apiSignature A signature from the off-chain validator, proving the dataset's validity.
-     * @param _zkProofHash An optional hash of a ZK proof for external verification.
      */
     function createDataset(
         uint256[] calldata _photoIDs,
-        bytes calldata _apiSignature,
-        bytes32 _zkProofHash
+        bytes calldata _apiSignature
     ) external {
         uint256 photoCount = _photoIDs.length;
         require(photoCount > 0, "Dataset cannot be empty");
@@ -198,9 +148,6 @@ contract DatasetRegistry is ERC721, Ownable {
         
         // 5. Store dataset information on-chain
         datasetPhotos[datasetId] = _photoIDs;
-        if (_zkProofHash != bytes32(0)) {
-            zkProofHashes[datasetId] = _zkProofHash;
-        }
 
         _datasetIdCounter.increment();
         emit DatasetCreated(datasetId, msg.sender, photoCount, totalCost);
@@ -237,9 +184,9 @@ contract DatasetRegistry is ERC721, Ownable {
         if (contributorTotalAmount > 0) {
             uint256 sharePerPhoto = contributorTotalAmount / _photoIDs.length;
             
-            // Update the claimable balance for each PhotoNFT owner
+            // Update the claimable balance for each SocialMediaPost owner
             for (uint i = 0; i < _photoIDs.length; i++) {
-                address owner = photoNFT.ownerOf(_photoIDs[i]);
+                address owner = SocialMediaPosts.ownerOf(_photoIDs[i]);
                 if (sharePerPhoto > 0) {
                     claimableBalances[owner] += sharePerPhoto;
                 }

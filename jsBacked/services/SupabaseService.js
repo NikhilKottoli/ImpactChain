@@ -5,6 +5,7 @@ class SupabaseService {
   /**
    * Utility to check if supabase is configured
    */
+
   _checkSupabase() {
     if (!supabase) {
       throw new Error('Supabase not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY');
@@ -41,6 +42,7 @@ class SupabaseService {
       title: postData.title,
       description: postData.description,
       ipfs_hash: postData.ipfsHash,
+      location: postData.location || null,
       like_count: 0,
       total_earnings: '0',
       is_active: true,
@@ -98,6 +100,26 @@ class SupabaseService {
     return data || [];
   }
 
+  /**
+   * Update post data by its primary key (UUID)
+   */
+  async updatePost(id, updates) {
+    this._checkSupabase();
+    const { data, error } = await supabase
+      .from('social_posts')
+      .update(updates)
+      .eq('id', id) // Use the primary key 'id' column
+      .select()
+      .single();
+
+    if (error) {
+      console.error(`Error updating post ${id}:`, error.message);
+      throw new Error(`Failed to update post ${id}`);
+    }
+
+    return data;
+  }
+
   async getAllUsers(){
     this._checkSupabase();
     const {data,error} = await supabase
@@ -111,6 +133,29 @@ class SupabaseService {
 
     return data || [];
   }
+
+  /**
+   * Get a single post by its primary key (UUID).
+   * This is needed for the AI classification route.
+   */
+  async getPostById(id) {
+    this._checkSupabase();
+    const { data, error } = await supabase
+      .from('social_posts')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error(`Error fetching post with ID ${id}:`, error.message);
+      // Return null if not found, throw for other errors
+      if (error.code === 'PGRST116') return null;
+      throw new Error(`Failed to fetch post with ID ${id}`);
+    }
+
+    return data;
+  }
+
 
 
   /**
@@ -136,25 +181,30 @@ class SupabaseService {
   }
 
   /**
-   * Update post data
+   * Update post data by its primary key (UUID)
    */
-  async updatePost(tokenId, updates) {
+  async updatePost(id, updates) {
     this._checkSupabase();
     const { data, error } = await supabase
-      .from('posts')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('token_id', tokenId)
+      .from('social_posts')
+      .update(updates)
+      .eq('id', id) // Use the primary key 'id' column
       .select()
       .single();
 
     if (error) {
-      throw new Error(`Failed to update post: ${error.message}`);
+      console.error(`Error updating post ${id}:`, error.message);
+      throw new Error(`Failed to update post ${id}`);
     }
 
     return data;
+  }
+
+  /**
+   * Update by aiLabels by Post ID
+   */
+  async updatePostAILabels(id, aiLabels) {
+    await this.updatePost(id, aiLabels);
   }
 
   /**

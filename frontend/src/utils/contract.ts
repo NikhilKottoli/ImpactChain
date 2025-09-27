@@ -7,7 +7,7 @@ import type { Post, Interaction, CreatePostParams, ContractConfig } from '../typ
 export const CONTRACT_CONFIG: ContractConfig = {
   address: '0x105478CB653F4f26142c9b8daF55f56c97357A89', // Your contract address
   ownerAddress: '0x42bB782189817C7aA9c7a8C1BaeDf194c9d73f6e', // Your owner address
-  minCheerAmount: ethers.parseEther('0.01') // 0.01 ETH
+  minCheerAmount: ethers.parseEther('0.0001') // 0.01 ETH
 };
 
 // Sepolia testnet configuration
