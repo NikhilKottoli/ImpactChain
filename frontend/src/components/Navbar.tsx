@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, CreditCard, Map, Repeat, Search, Users, Target } from "lucide-react";
+import { Bell, CreditCard, Map, Repeat, Search, Users, Target, UserCheck, TestTube } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ENSAccountDisplay } from "./ConnectKitWallet";
 
