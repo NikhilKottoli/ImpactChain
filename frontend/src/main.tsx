@@ -17,6 +17,8 @@ import BgDynamic from "./components/BgDynamic";
 import CampaignPage from "./pages/Campaign/CampaignPage";
 import CreateCampaignForm from "./pages/Campaign/CampaignPageForm";
 import CampaignFeed from "./pages/Campaign/CampaignFeed";
+import DAOHomepage from "./pages/DAO/DAOhomepage";
+import VotingPage from "./pages/DAO/Votingpage";
 // import Home from "./pages/Home";
 // import About from "./pages/About";
 
@@ -63,6 +65,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Route path="testconfig" element={<TestConfig />} />
               <Route path="campaign" element={<CampaignPage />} />
               <Route path="create-campaign" element={<CreateCampaignForm />} />
+              <Route path="dao" element={<DAOHomepage />} />
+              <Route path="voting/:uuid" element={<VotingPage />} />
             </Route>
           </Route>
         </Routes>

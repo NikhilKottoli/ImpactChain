@@ -58,6 +58,23 @@ export interface RSVPParams {
   stakeAmount: string; // In ETH as string
 }
 
+export interface AttestationData {
+  userAddress: string;
+  isVerified: boolean;
+  attestationHash: string;
+  ipfsHash: string;
+  yesVotes: number;
+  noVotes: number;
+  totalVerifiers: number;
+}
+
+export interface ProcessAttestationsParams {
+  campaignId: string;
+  attestations: AttestationData[];
+}
+
+
+
 // Generate UUID using crypto.randomUUID() or fallback
 function generateUUID(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -345,6 +362,27 @@ export async function dummyDAO(campaignId: string): Promise<{
   }
 }
 
+export async function processCampaignAttestations(params: ProcessAttestationsParams): Promise<{
+  transactionHash: string;
+}> {
+  try {
+    const contract = await getContractInstance();
+
+    // Call processCampaignAttestations function
+    const tx = await contract.processCampaignAttestations(params.campaignId, params.attestations);
+
+    // Wait for transaction confirmation
+    await tx.wait();
+
+    return {
+      transactionHash: tx.hash
+    };
+
+  } catch (error) {
+    console.error('Error processing campaign attestations:', error);
+    throw new Error(`Failed to process campaign attestations: ${error}`);
+  }
+}
 
 // Get campaign by ID
 export async function getCampaign(campaignId: string): Promise<Campaign> {
