@@ -134,7 +134,7 @@ contract SimpleDAOVoting {
     /// @param _reason Optional reason for the vote
     function castVote(
         string calldata _uuid,
-        address _userAddress,
+        address _userAddress, // this represents the user address of the user being voted
         VoteOption _vote,
         string calldata _reason
     ) external {
