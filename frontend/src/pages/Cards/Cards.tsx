@@ -4,7 +4,7 @@ import CardStackDemo from "./CardsComponent";
 function App() {
   return (
     <div className="w-full h-screen overflow-hidden">
-      <div className="scale-115">
+      <div className="scale-115 h-screen">
         <CardStackDemo />
       </div>
     </div>

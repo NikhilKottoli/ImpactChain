@@ -558,7 +558,7 @@ const SocialMediaCards: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-none flex flex-col items-center justify-center p-4 relative overflow-hidden pt-20">
+    <div className="h-screen bg-none flex flex-col items-center justify-center p-4 relative overflow-hidden pt-20">
       {/* Header */}
       <div className="text-center mb-8 z-10 lg:block  fixed left-[160px] top-1/2 transform -translate-y-[70%]  ">
         <h1 className="ml-8 text-4xl font-bold text-gray-800 mb-2 text-left">
@@ -761,24 +761,6 @@ const SocialMediaCards: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* Instructions */}
-      <div className="text-center text-gray-600 text-sm max-w-md z-10 lg:block hidden">
-        <p className="mb-2">
-          <strong>Swipe right</strong> to like posts •{" "}
-          <strong>Swipe left</strong> to skip
-        </p>
-        <p className="text-xs text-gray-500">
-          Use keyboard arrows (← →) or drag with mouse/touch
-        </p>
-      </div>
-
-      {/* Accessibility announcer */}
-      <div aria-live="polite" className="sr-only">
-        {cards.length === 0
-          ? "No more posts available"
-          : `${cards.length} posts remaining`}
-      </div>
     </div>
   );
 };

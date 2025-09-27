@@ -164,7 +164,7 @@ class SupabaseService {
   async getPostByTokenId(tokenId) {
     this._checkSupabase();
     const { data, error } = await supabase
-      .from('posts')
+      .from('social_posts')
       .select('*')
       .eq('token_id', tokenId)
       .eq('is_active', true)
