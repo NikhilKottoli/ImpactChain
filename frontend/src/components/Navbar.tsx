@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, CreditCard, Map, Repeat, Search, Users, Target, TestTube } from "lucide-react";
+import { Bell, CreditCard, Map, Repeat, Search, Users, Target } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ENSAccountDisplay } from "./ConnectKitWallet";
 
@@ -7,6 +7,7 @@ const navItems = [
   { icon: CreditCard, label: "Cards", path: "/cards" },
   { icon: Users, label: "Social", path: "/social" },
   { icon: Target, label: "Campaigns", path: "/campaign" },
+  { icon: UserCheck, label: "People", path: "/people" },
   { icon: Map, label: "Map", path: "/map" },
   { icon: Search, label: "Search", path: "/search" },
   { icon: TestTube, label: "Test", path: "/test" },
@@ -25,14 +26,12 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Left: Platform Logo */}
-      <Link to="/" className="flex items-center z-[100] fixed top-10 left-10">
-        <img src="/logo.svg" alt="Platform Logo" className="h-12 mr-3" />
-        {/* <div>
-          <span className="font-bold text-xl text-gray-900">ImpactDAO</span>
-          <p className="text-xs text-gray-600">Social Impact Platform</p>
-        </div> */}
-      </Link>
+      {/* Top Navigation Bar */}
+      <nav className="flex items-center justify-between px-12 py-6 bg-transparent fixed w-full top-0 left-0 z-50">
+        {/* Left: Platform Logo */}
+        <Link to="/" className="flex items-center">
+          <img src="/logo.svg" alt="Platform Logo" className="h-12 mr-3" />
+        </Link>
 
         {/* Right: ENS-Enhanced Wallet & Profile */}
         <div className="flex items-center gap-2">

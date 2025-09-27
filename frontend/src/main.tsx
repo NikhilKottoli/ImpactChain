@@ -1,8 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import "./index.css";
+import { Web3Provider } from './config/wagmi';
 import { Web3Provider } from './config/wagmi';
 import Home from "./pages/home/Home";
 import App from "./App";
@@ -15,9 +16,19 @@ import TestConfig from "./pages/Social/TestConfig";
 import CampaignPage from "./pages/Campaign/CampaignPage";
 import TestPage from "./pages/Test/TestPage";
 import SearchPage from "./pages/Search/SearchPage";
+import TestPage from "./pages/Test/TestPage";
+import SearchPage from "./pages/Search/SearchPage";
+import PeoplePage from "./pages/People/PeoplePage";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
+    <Web3Provider>
+      <BrowserRouter>
+        <div className="absolute inset-0 -z-10 h-full w-full bg-[#FBF3F0] [background:radial-gradient(125%_125%_at_50%_80%,#FBF3F0_40%,#26AFE0_100%)] ">
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<App />}>
+              <Route index element={<Home />} />
     <Web3Provider>
       <BrowserRouter>
         <div className="absolute inset-0 -z-10 h-full w-full bg-[#FBF3F0] [background:radial-gradient(125%_125%_at_50%_80%,#FBF3F0_40%,#26AFE0_100%)] ">
@@ -33,6 +44,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Route path="test" element={<TestPage />} />
               <Route path="search" element={<SearchPage />} />
               {/* <Route path="about" element={<About />} /> */}
+            </Route>
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </Web3Provider>
+              <Route path="people" element={<PeoplePage />} />
+              <Route path="test" element={<TestPage />} />
+              <Route path="search" element={<SearchPage />} />
             </Route>
           </Routes>
         </div>
