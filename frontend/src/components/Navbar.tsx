@@ -1,16 +1,24 @@
 import { useState } from "react";
-import { Bell, CreditCard, Map, Repeat, Search } from "lucide-react";
+import { Bell, CreditCard, Map, Repeat, Search, Users } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { WalletConnect } from "./WalletConnect";
 
 const navItems = [
-  { icon: CreditCard, label: "Cards" },
-  { icon: Map, label: "Map" },
-  { icon: Search, label: "Search" },
-  { icon: Bell, label: "Notifications" },
-  { icon: Repeat, label: "Transactions" },
+  { icon: CreditCard, label: "Cards", path: "/cards" },
+  { icon: Users, label: "Social", path: "/social" },
+  { icon: Map, label: "Map", path: "/map" },
+  { icon: Search, label: "Search", path: "/search" },
+  { icon: Bell, label: "Notifications", path: "/notifications" },
 ];
 
 export default function Navbar() {
-  const [active, setActive] = useState(0);
+  const location = useLocation();
+  const getActiveIndex = () => {
+    const currentPath = location.pathname;
+    const index = navItems.findIndex(item => item.path === currentPath);
+    return index >= 0 ? index : 0;
+  };
+  const [active, setActive] = useState(getActiveIndex());
 
   return (
     <>
@@ -22,11 +30,8 @@ export default function Navbar() {
         </div>
 
         {/* Right: Wallet & Profile */}
-
         <div className="flex items-center gap-2 bg-white px-2 py-2 rounded-full shadow-md">
-          <button className="px-4 py-2 rounded-full border border-gray-300 bg-gray-100 cursor-pointer font-medium">
-            Connect Wallet
-          </button>
+          <WalletConnect />
           <img
             src="https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg"
             alt="Profile"
@@ -39,10 +44,11 @@ export default function Navbar() {
       <nav className="w-full fixed left-0 lg:top-5 lg:bottom-auto bottom-5 px-6">
         <div className="w-full max-w-[600px] bg-white z-50 flex justify-around items-center py-6 mx-auto rounded-full shadow-xl">
           {navItems.map((item, idx) => (
-            <button
+            <Link
               key={item.label}
+              to={item.path}
               className={`flex flex-col items-center focus:outline-none relative ${
-                active === idx
+                location.pathname === item.path
                   ? "text-blue-400"
                   : "text-gray-600 hover:text-blue-400"
               }`}
@@ -50,10 +56,10 @@ export default function Navbar() {
             >
               <item.icon className="mb-1 w-6 h-6" />
               <span className="text-xs">{item.label}</span>
-              {active === idx && (
+              {location.pathname === item.path && (
                 <div className="absolute -bottom-6 left-0 w-full h-1 bg-blue-400 rounded-full"></div>
               )}
-            </button>
+            </Link>
           ))}
         </div>
       </nav>
