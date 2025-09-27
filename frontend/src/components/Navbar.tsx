@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Bell, CreditCard, Map, Repeat, Search, Users, Target } from "lucide-react";
+import { Bell, CreditCard, Map, Repeat, Search, Users, Target, TestTube } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { WalletConnect } from "./WalletConnect";
+import { ENSAccountDisplay } from "./ConnectKitWallet";
 
 const navItems = [
   { icon: CreditCard, label: "Cards", path: "/cards" },
@@ -9,6 +9,7 @@ const navItems = [
   { icon: Target, label: "Campaigns", path: "/campaign" },
   { icon: Map, label: "Map", path: "/map" },
   { icon: Search, label: "Search", path: "/search" },
+  { icon: TestTube, label: "Test", path: "/test" },
   { icon: Bell, label: "Notifications", path: "/notifications" },
 ];
 
@@ -30,14 +31,9 @@ export default function Navbar() {
           <span className="font-semibold text-xl"></span>
         </div>
 
-        {/* Right: Wallet & Profile */}
-        <div className="flex items-center gap-2 bg-white px-2 py-2 rounded-full shadow-md">
-          <WalletConnect />
-          <img
-            src="https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg"
-            alt="Profile"
-            className="h-9 w-9 rounded-full object-cover border border-gray-300"
-          />
+        {/* Right: ENS-Enhanced Wallet & Profile */}
+        <div className="flex items-center gap-2">
+          <ENSAccountDisplay />
         </div>
       </nav>
 

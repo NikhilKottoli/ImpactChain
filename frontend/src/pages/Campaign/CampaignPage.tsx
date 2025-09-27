@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { WalletConnect } from '@/components/WalletConnect';
+import { ENSUserProfile, ENSUserProfileCompact } from '@/components/ENSUserProfile';
+import { CampaignENSProfile, CampaignENSBadge } from '@/components/CampaignENSProfile';
+import { MultiChainAddresses, MultiChainBadges } from '@/components/MultiChainAddresses';
 import { walletConnection } from '@/utils/wallet';
 import { 
   getUserCampaigns, 
@@ -225,12 +228,14 @@ export default function CampaignPage() {
           <div className="flex items-center gap-4">
             <WalletConnect />
             {isConnected && (
-              <Button
-                onClick={() => setShowForm(true)}
-                className="px-6 py-2 rounded-xl font-semibold"
-              >
-                Create Campaign
-              </Button>
+              <>
+                <Button
+                  onClick={() => setShowForm(true)}
+                  className="px-6 py-2 rounded-xl font-semibold"
+                >
+                  Create Campaign
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -297,13 +302,26 @@ export default function CampaignPage() {
                     >
                       {/* Campaign Header */}
                       <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-lg font-semibold text-white mb-1">
-                            {campaign.isFundraiser ? 'Fundraiser' : 'Sponsored'} Campaign
-                          </h3>
-                          <p className="text-xs text-gray-400 font-mono">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="text-lg font-semibold text-white">
+                              {campaign.isFundraiser ? 'Fundraiser' : 'Sponsored'} Campaign
+                            </h3>
+                            <CampaignENSBadge campaignId={campaign.id} />
+                          </div>
+                          <p className="text-xs text-gray-400 font-mono mb-2">
                             ID: {campaign.id.slice(0, 8)}...
                           </p>
+                          
+                          {/* Creator Profile */}
+                          <div className="mb-2">
+                            <p className="text-xs text-gray-400 mb-1">Creator:</p>
+                            <ENSUserProfileCompact 
+                              address={campaign.creator} 
+                              className="text-white" 
+                            />
+                          </div>
+                          
                           {canManage && (
                             <span className="inline-block mt-1 px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">
                               Your Campaign
@@ -347,11 +365,12 @@ export default function CampaignPage() {
                         </div>
                         
                         {!campaign.isFundraiser && campaign.bountyPayer !== '0x0000000000000000000000000000000000000000' && (
-                          <div className="flex justify-between">
+                          <div className="flex justify-between items-center">
                             <span className="text-gray-400">Bounty Payer:</span>
-                            <span className="text-white font-medium text-xs font-mono">
-                              {campaign.bountyPayer.slice(0, 6)}...{campaign.bountyPayer.slice(-4)}
-                            </span>
+                            <ENSUserProfileCompact 
+                              address={campaign.bountyPayer} 
+                              className="text-white" 
+                            />
                           </div>
                         )}
                       </div>
@@ -465,6 +484,34 @@ export default function CampaignPage() {
                     <div className="text-sm text-gray-400">Total Staked (ETH)</div>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* ENS Campaign Profile Demo */}
+            {campaigns.length > 0 && (
+              <div className="mt-8 space-y-6">
+                <h3 className="text-xl font-semibold text-white mb-4">ENS Integration Demo</h3>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {campaigns.slice(0, 2).map((campaign) => (
+                    <CampaignENSProfile
+                      key={campaign.id}
+                      campaignId={campaign.id}
+                      creatorAddress={campaign.creator}
+                      className="bg-white/5 backdrop-blur-sm border-white/10"
+                    />
+                  ))}
+                </div>
+                
+                {/* Multi-Chain Address Demo */}
+                <MultiChainAddresses
+                  addresses={[
+                    { coinType: 60, address: campaigns[0]?.creator || '0x0000000000000000000000000000000000000000' },
+                    { coinType: 137, address: campaigns[0]?.creator || '0x0000000000000000000000000000000000000000' },
+                    { coinType: 42161, address: campaigns[0]?.creator || '0x0000000000000000000000000000000000000000' },
+                  ]}
+                  title="Multi-Chain Campaign Addresses"
+                  className="bg-white/5 backdrop-blur-sm border-white/10"
+                />
               </div>
             )}
 
