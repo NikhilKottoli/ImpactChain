@@ -6,6 +6,26 @@ export default function LandingPage() {
   return (
     <main>
       <div className="w-full h-screen relative bg-[#FBF3F0] ">
+        <div className="absolute">
+          <Link
+            to="/"
+            className="flex items-center z-[100] fixed top-10 left-10"
+          >
+            <img src="/logo.svg" alt="Platform Logo" className="h-12 mr-3" />
+            {/* <div>
+                  <span className="font-bold text-xl text-gray-900">ImpactDAO</span>
+                  <p className="text-xs text-gray-600">Social Impact Platform</p>
+                </div> */}
+          </Link>
+          {/* Right: Wallet & Profile */}
+          <div className="flex items-center gap-2 bg-white px-2 py-2 rounded-full shadow-md z-[100]  fixed top-10 right-10">
+            <img
+              src="https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg"
+              alt="Profile"
+              className="h-9 w-9 rounded-full object-cover border border-gray-300"
+            />
+          </div>
+        </div>
         <img
           className=" absolute bottom-0 left-0  h-[50%] w-full object-cover"
           src="heropattern.png"

@@ -28,8 +28,6 @@
 html,
 body {
   width: 100%;
-  background-color: white;
-  color: black;
   scroll-behavior: smooth;
   overflow-x: hidden;
 }
@@ -68,13 +66,6 @@ body {
   mask-size: 50%;
 }
 
-.silver-gradient-text {
-  background: linear-gradient(to bottom, #fbfbfb 0%, #fefefe 52%, #c6c6c6 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-}
 
 :root {
   --background: oklch(1 0 0);
@@ -242,9 +233,4 @@ body {
   body {
     @apply bg-background text-foreground;
   }
-}
-
-html,
-body {
-  background-color: #fbf3f0;
 }

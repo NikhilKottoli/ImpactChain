@@ -3,8 +3,10 @@ import CardStackDemo from "./CardsComponent";
 // In your component or App.tsx
 function App() {
   return (
-    <div>
-      <CardStackDemo />
+    <div className="w-full h-screen overflow-hidden">
+      <div className="scale-115">
+        <CardStackDemo />
+      </div>
     </div>
   );
 }
