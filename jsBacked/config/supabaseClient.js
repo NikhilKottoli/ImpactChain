@@ -1,10 +1,20 @@
+// config/supabase.js
 const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
-// Use environment variables for security
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
+// Use process.env for Node.js backend environment variables
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
 
-// Initialize client
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+// The client is only created if credentials exist
+const supabase = supabaseUrl && supabaseKey 
+  ? createClient(supabaseUrl, supabaseKey) 
+  : null;
 
-module.exports = supabase;
+if (!supabase) {
+  console.warn("Supabase client not fully initialized. Check SUPABASE_URL and SUPABASE_ANON_KEY environment variables.");
+}
+
+module.exports = {
+  supabase
+};
