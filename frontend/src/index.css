@@ -28,6 +28,8 @@
 html,
 body {
   width: 100%;
+  background-color: white;
+  color: black;
   scroll-behavior: smooth;
   overflow-x: hidden;
 }
@@ -65,7 +67,6 @@ body {
   mask-position: center;
   mask-size: 50%;
 }
-
 
 :root {
   --background: oklch(1 0 0);
@@ -233,4 +234,9 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+html,
+body {
+  background-color: #fbf3f0;
 }
