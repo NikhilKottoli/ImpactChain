@@ -12,7 +12,8 @@ import SocialMedia from "./pages/Social/SocialMedia";
 import CreatePost from "./pages/Social/CreatePost";
 import TestConfig from "./pages/Social/TestConfig";
 import CampaignPage from "./pages/Campaign/CampaignPage";
-import CreateCampaignForm from "./pages/Campaign/CreateCampaignForm";
+import CreateCampaignForm from "./pages/Campaign/CampaignPageForm";
+import CampaignFeed from "./pages/Campaign/CampaignFeed";
 // import Home from "./pages/Home";
 // import About from "./pages/About";
 
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="testconfig" element={<TestConfig />} />
             <Route path="campaign" element={<CampaignPage />} />
             <Route path="create-campaign" element={<CreateCampaignForm />} />
+            <Route path="campaign-feed" element={<CampaignFeed />} />
             {/* <Route path="about" element={<About />} /> */}
           </Route>
         </Routes>
