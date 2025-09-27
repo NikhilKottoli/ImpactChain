@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import {
   Calendar,
   MapPin,
@@ -7,11 +7,11 @@ import {
   DollarSign,
   Shield,
   Sparkles,
-  FileText,
-  Camera,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const CreateCampaign: React.FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -40,482 +40,390 @@ const CreateCampaign: React.FC = () => {
   ];
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((p) => ({ ...p, [field]: value }));
   };
 
-  const addVoterField = () => {
-    setFormData((prev) => ({
-      ...prev,
-      daoVoters: [...prev.daoVoters, ""],
-    }));
-  };
+  const addVoterField = () =>
+    setFormData((p) => ({ ...p, daoVoters: [...p.daoVoters, ""] }));
 
-  const updateVoter = (index: number, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      daoVoters: prev.daoVoters.map((voter, i) =>
-        i === index ? value : voter
-      ),
+  const updateVoter = (i: number, v: string) =>
+    setFormData((p) => ({
+      ...p,
+      daoVoters: p.daoVoters.map((addr, idx) => (idx === i ? v : addr)),
     }));
-  };
 
-  const removeVoter = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      daoVoters: prev.daoVoters.filter((_, i) => i !== index),
+  const removeVoter = (i: number) =>
+    setFormData((p) => ({
+      ...p,
+      daoVoters: p.daoVoters.filter((_, idx) => idx !== i),
     }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
+    await new Promise((r) => setTimeout(r, 1200));
     setIsCreating(false);
     alert("Campaign created successfully!");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 pt-32">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Create Social Impact Campaign
-              </h1>
-              <p className="text-gray-600">
-                Organize community action with optional bounties and DAO
-                verification
-              </p>
-            </div>
-          </div>
+    <div className="min-h-screen pt-20 flex flex-col md:flex-row px-4 md:px-32">
+      {/* LEFT COLUMN */}
+      <div className="w-full md:w-1/3 md:fixed md:top-28 md:left-0 md:h-[calc(100vh-7rem)] md:overflow-y-auto p-4 md:p-8 md:ml-32 space-y-8">
+        <div>
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/social")}
+            className="mb-5 text-primary hover:text-primary/80"
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back
+          </Button>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+            Create Campaign
+          </h1>
+          <p className="text-muted-foreground">
+            Launch a social impact event with staking and optional bounty + DAO
+            verification.
+          </p>
+        </div>
+
+        <div className="bg-accent/20 rounded-lg border border-accent/30 p-5">
+          <h3 className="text-sm font-medium mb-3 text-accent-foreground flex items-center">
+            <Calendar className="w-4 h-4 mr-2" />
+            Campaign Flow
+          </h3>
+          <ul className="text-xs text-muted-foreground space-y-2">
+            <li>1. Creation & RSVP window opens</li>
+            <li>2. Users stake & register</li>
+            <li>3. Event executes on scheduled date</li>
+            <li>4. DAO voters verify attendance</li>
+            <li>5. Stakes returned & bounty distributed</li>
+          </ul>
+        </div>
+
+        <div className="bg-card border border-border rounded-lg p-5">
+          <h3 className="text-sm font-medium mb-3 flex items-center text-foreground">
+            <Shield className="w-4 h-4 mr-2" />
+            DAO Verification
+          </h3>
+          <ul className="text-xs text-muted-foreground space-y-1">
+            <li>• Prevents fake participation</li>
+            <li>• Ensures fair bounty payout</li>
+            <li>• On-chain attestations</li>
+            <li>• Builds contributor reputation</li>
+          </ul>
+        </div>
+
+        <div className="bg-primary/10 border border-primary/30 rounded-lg p-5">
+          <h3 className="text-sm font-medium text-primary mb-3">Tips</h3>
+          <ul className="text-xs text-muted-foreground space-y-1">
+            <li>• Use clear measurable goals</li>
+            <li>• Stake should deter no-shows</li>
+            <li>• Pick trusted voter wallets</li>
+            <li>• Add a bounty to boost turnout</li>
+            <li>• Capture media for future proof</li>
+          </ul>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Form */}
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Basic Information */}
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Basic Information
-                </h3>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Campaign Title *
-                    </label>
+      {/* RIGHT COLUMN */}
+      <div className="w-full md:w-1/2 md:ml-[50%] min-h-screen overflow-y-auto mt-8 md:mt-0">
+        <form onSubmit={handleSubmit} className="p-4 md:p-8 space-y-8">
+          {/* Basic Info */}
+          <div className="bg-card border border-border rounded-lg p-6 space-y-5">
+            <h2 className="text-lg font-semibold text-foreground">
+              Basic Information
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Campaign Title *
+                </label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
+                  className="w-full px-4 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="e.g., Central River Cleanup"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Description *
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
+                  rows={4}
+                  placeholder="Goals, activities, expected impact..."
+                  className="w-full px-4 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  required
+                />
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Category *
+                  </label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) =>
+                      handleInputChange("category", e.target.value)
+                    }
+                    className="w-full px-4 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    required
+                  >
+                    <option value="">Select</option>
+                    {categories.map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Location *
+                  </label>
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
                     <input
                       type="text"
-                      value={formData.title}
+                      value={formData.location}
                       onChange={(e) =>
-                        handleInputChange("title", e.target.value)
+                        handleInputChange("location", e.target.value)
                       }
-                      placeholder="e.g., Clean the Central River Project"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-9 pr-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="City / coordinates / venue"
                       required
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description *
-                    </label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) =>
-                        handleInputChange("description", e.target.value)
-                      }
-                      placeholder="Describe the campaign goals, activities, and expected impact..."
-                      rows={4}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Category *
-                      </label>
-                      <select
-                        value={formData.category}
-                        onChange={(e) =>
-                          handleInputChange("category", e.target.value)
-                        }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        required
-                      >
-                        <option value="">Select category</option>
-                        {categories.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Location *
-                      </label>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                        <input
-                          type="text"
-                          value={formData.location}
-                          onChange={(e) =>
-                            handleInputChange("location", e.target.value)
-                          }
-                          placeholder="Event location"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          required
-                        />
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* Event Details */}
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Event Details
-                </h3>
+          {/* Event Details */}
+          <div className="bg-card border border-border rounded-lg p-6 space-y-5">
+            <h2 className="text-lg font-semibold text-foreground">
+              Event Details
+            </h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Event Date *
+                </label>
+                <input
+                  type="date"
+                  value={formData.eventDate}
+                  onChange={(e) =>
+                    handleInputChange("eventDate", e.target.value)
+                  }
+                  className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Event Time *
+                </label>
+                <input
+                  type="time"
+                  value={formData.eventTime}
+                  onChange={(e) =>
+                    handleInputChange("eventTime", e.target.value)
+                  }
+                  className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Max Participants *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={formData.maxParticipants}
+                  onChange={(e) =>
+                    handleInputChange("maxParticipants", e.target.value)
+                  }
+                  className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="50"
+                  required
+                />
+              </div>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Required Stake (USD) *
+              </label>
+              <div className="relative">
+                <DollarSign className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
+                <input
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  value={formData.stakeAmount}
+                  onChange={(e) =>
+                    handleInputChange("stakeAmount", e.target.value)
+                  }
+                  className="w-full pl-8 pr-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="25"
+                  required
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Users stake this amount to RSVP and get it back if verified.
+              </p>
+            </div>
+          </div>
+
+          {/* Bounty */}
+          <div className="bg-card border border-border rounded-lg p-6 space-y-5">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-foreground flex items-center">
+                Bounty Configuration
+              </h2>
+              <label className="flex items-center space-x-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={formData.hasBounty}
+                  onChange={(e) =>
+                    handleInputChange("hasBounty", e.target.checked)
+                  }
+                  className="w-4 h-4"
+                />
+                <span>Add bounty</span>
+              </label>
+            </div>
+
+            {formData.hasBounty && (
+              <div className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Event Date *
+                    <label className="block text-sm font-medium mb-1">
+                      Bounty Amount (USD) *
                     </label>
-                    <input
-                      type="date"
-                      value={formData.eventDate}
-                      onChange={(e) =>
-                        handleInputChange("eventDate", e.target.value)
-                      }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
+                    <div className="relative">
+                      <DollarSign className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
+                      <input
+                        type="number"
+                        min="1"
+                        step="0.01"
+                        value={formData.bountyAmount}
+                        onChange={(e) =>
+                          handleInputChange("bountyAmount", e.target.value)
+                        }
+                        className="w-full pl-8 pr-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        placeholder="500"
+                        required
+                      />
+                    </div>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Event Time *
+                    <label className="block text-sm font-medium mb-1">
+                      Bounty Funder (optional)
                     </label>
                     <input
-                      type="time"
-                      value={formData.eventTime}
+                      type="text"
+                      value={formData.bountyFunder}
                       onChange={(e) =>
-                        handleInputChange("eventTime", e.target.value)
+                        handleInputChange("bountyFunder", e.target.value)
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Max Participants *
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.maxParticipants}
-                      onChange={(e) =>
-                        handleInputChange("maxParticipants", e.target.value)
-                      }
-                      placeholder="50"
-                      min="1"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
+                      className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Org / Sponsor name"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Required Stake Amount (USD) *
+                  <label className="block text-sm font-medium mb-1">
+                    DAO Voter Wallets *
                   </label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                    <input
-                      type="number"
-                      value={formData.stakeAmount}
-                      onChange={(e) =>
-                        handleInputChange("stakeAmount", e.target.value)
-                      }
-                      placeholder="25"
-                      min="1"
-                      step="0.01"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Participants must stake this amount to RSVP
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Addresses that verify attendance & trigger payouts.
                   </p>
-                </div>
-              </div>
-
-              {/* Bounty Configuration */}
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                <div className="flex items-center space-x-3 mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Bounty Configuration
-                  </h3>
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="hasBounty"
-                      checked={formData.hasBounty}
-                      onChange={(e) =>
-                        handleInputChange("hasBounty", e.target.checked)
-                      }
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                    <label
-                      htmlFor="hasBounty"
-                      className="ml-2 text-sm text-gray-700"
-                    >
-                      Add bounty reward
-                    </label>
-                  </div>
-                </div>
-
-                {formData.hasBounty && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Bounty Amount (USD) *
-                        </label>
-                        <div className="relative">
-                          <DollarSign className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                          <input
-                            type="number"
-                            value={formData.bountyAmount}
-                            onChange={(e) =>
-                              handleInputChange("bountyAmount", e.target.value)
-                            }
-                            placeholder="500"
-                            min="1"
-                            step="0.01"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            required={formData.hasBounty}
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Bounty Funder Name
-                        </label>
+                  <div className="space-y-3">
+                    {formData.daoVoters.map((v, idx) => (
+                      <div key={idx} className="flex gap-2">
                         <input
                           type="text"
-                          value={formData.bountyFunder}
-                          onChange={(e) =>
-                            handleInputChange("bountyFunder", e.target.value)
-                          }
-                          placeholder="Organization or individual name"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          value={v}
+                          onChange={(e) => updateVoter(idx, e.target.value)}
+                          placeholder="0x..."
+                          required
+                          className="flex-1 px-3 py-2 rounded-md border border-input bg-background text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary"
                         />
-                      </div>
-                    </div>
-
-                    {/* DAO Voters */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        DAO Voter Wallet Addresses *
-                      </label>
-                      <p className="text-sm text-gray-500 mb-3">
-                        These addresses will vote on participant verification
-                        after the event
-                      </p>
-
-                      <div className="space-y-3">
-                        {formData.daoVoters.map((voter, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center space-x-2"
+                        {formData.daoVoters.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => removeVoter(idx)}
+                            className="text-destructive"
                           >
-                            <input
-                              type="text"
-                              value={voter}
-                              onChange={(e) =>
-                                updateVoter(index, e.target.value)
-                              }
-                              placeholder="0x742d35Cc6636C0532925a3b8D23CAC0EDFF5C0C6"
-                              className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-                              required={formData.hasBounty}
-                            />
-                            {formData.daoVoters.length > 1 && (
-                              <Button
-                                type="button"
-                                onClick={() => removeVoter(index)}
-                                variant="outline"
-                                size="sm"
-                                className="text-red-600 hover:text-red-800"
-                              >
-                                Remove
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-
-                        <Button
-                          type="button"
-                          onClick={addVoterField}
-                          variant="outline"
-                          size="sm"
-                          className="mt-2"
-                        >
-                          + Add Voter Address
-                        </Button>
+                            Remove
+                          </Button>
+                        )}
                       </div>
-                    </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addVoterField}
+                    >
+                      + Add Voter
+                    </Button>
                   </div>
-                )}
+                </div>
               </div>
-
-              {/* Submit Button */}
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                <Button
-                  type="submit"
-                  disabled={isCreating}
-                  className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-lg font-semibold"
-                >
-                  {isCreating ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Creating Campaign...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-5 h-5 mr-2" />
-                      Create Campaign
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
+            )}
           </div>
 
-          {/* Sidebar Info */}
-          <div className="space-y-6">
-            {/* Process Flow */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Campaign Flow
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                    1
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      Campaign Creation
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Campaign goes live for RSVPs
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                    2
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">User RSVPs</p>
-                    <p className="text-sm text-gray-600">
-                      Participants stake required amount
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                    3
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Event Execution</p>
-                    <p className="text-sm text-gray-600">
-                      Campaign takes place as scheduled
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                    4
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      DAO Verification
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Voters verify participant attendance
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                    5
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      Rewards Distribution
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Stakes returned, bounties distributed
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* DAO Info */}
-            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl border border-indigo-200 p-6">
-              <h3 className="text-lg font-semibold text-indigo-900 mb-4">
-                <Shield className="w-5 h-5 inline mr-2" />
-                DAO Verification System
-              </h3>
-              <ul className="space-y-2 text-sm text-indigo-800">
-                <li>• Prevents fake participation claims</li>
-                <li>• Ensures legitimate bounty distribution</li>
-                <li>• Creates verifiable attestations on-chain</li>
-                <li>• Builds reputation for future campaigns</li>
-                <li>• Stored permanently on IPFS</li>
-              </ul>
-            </div>
-
-            {/* Tips */}
-            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl border border-yellow-200 p-6">
-              <h3 className="text-lg font-semibold text-yellow-900 mb-4">
-                💡 Campaign Tips
-              </h3>
-              <ul className="space-y-2 text-sm text-yellow-800">
-                <li>• Set realistic participant limits</li>
-                <li>• Choose trusted DAO voters</li>
-                <li>• Stake amount should deter no-shows</li>
-                <li>• Clear goals increase participation</li>
-                <li>• Document everything for dataset value</li>
-              </ul>
-            </div>
+          {/* Submit */}
+          <div className="bg-card border border-border rounded-lg p-6">
+            <Button
+              type="submit"
+              disabled={isCreating}
+              className="w-full h-12 text-base font-semibold flex items-center justify-center"
+            >
+              {isCreating ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current mr-2" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Create Campaign
+                </>
+              )}
+            </Button>
           </div>
-        </div>
+        </form>
       </div>
+
+      <img
+        src="/share.png"
+        alt=""
+        className="w-full md:w-[40%] object-contain md:fixed -bottom-[100px] left-0 hidden md:block pointer-events-none select-none"
+      />
     </div>
   );
 };
