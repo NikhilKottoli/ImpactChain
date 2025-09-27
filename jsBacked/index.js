@@ -1,20 +1,24 @@
-require("dotenv").config();
-const express = require("express");
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config(); 
 
-const sponsorRoutes = require("./routes/sponsorRoutes");
-const influencerRoutes = require("./routes/influencerRoutes");
-const campaignRoutes = require("./routes/campaignRoutes");
+const postRoutes = require('./routes/posts');
+const userRoutes = require('./routes/users');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
 app.use(express.json());
+app.use(cors());
+// Routes
+app.use('/posts', postRoutes);
+app.use('/users', userRoutes);
 
-app.use("/sponsors", sponsorRoutes);
-app.use("/influencers", influencerRoutes);
-app.use("/campaigns", campaignRoutes);
-app.get("/",(req,res)=>{
-  res.send("Successfully setup")
-})
+app.get('/', (req, res) => {
+  res.send('Supabase Backend Service is running! 🚀');
+});
 
-app.listen(4000, () => {
-  console.log("Server running at http://localhost:4000");
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

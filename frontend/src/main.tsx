@@ -14,6 +14,10 @@ import TestConfig from "./pages/Social/TestConfig";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import BgDynamic from "./components/BgDynamic";
+import CampaignPage from "./pages/Campaign/CampaignPage";
+import CreateCampaignForm from "./pages/Campaign/CreateCampaignForm";
+// import Home from "./pages/Home";
+// import About from "./pages/About";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -51,12 +55,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 </>
               }
             >
-              <Route path="home" element={<Home />} />
               <Route path="login" element={<Login />} />
               <Route path="cards" element={<Cards />} />
               <Route path="social" element={<SocialMedia />} />
               <Route path="createpost" element={<CreatePost />} />
               <Route path="testconfig" element={<TestConfig />} />
+              <Route path="campaign" element={<CampaignPage />} />
+              <Route path="create-campaign" element={<CreateCampaignForm />} />
             </Route>
           </Route>
         </Routes>

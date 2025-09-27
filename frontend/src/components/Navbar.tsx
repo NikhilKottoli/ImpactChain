@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Bell, CreditCard, Map, Search, Users } from "lucide-react";
+import { Bell, CreditCard, Map, Repeat, Search, Users, Target } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { WalletConnect } from "./WalletConnect";
 
 const navItems = [
   { icon: CreditCard, label: "Cards", path: "/cards" },
   { icon: Users, label: "Social", path: "/social" },
+  { icon: Target, label: "Campaigns", path: "/campaign" },
   { icon: Map, label: "Map", path: "/map" },
   { icon: Search, label: "Search", path: "/search" },
   { icon: Bell, label: "Notifications", path: "/notifications" },
