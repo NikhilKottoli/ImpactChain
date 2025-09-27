@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { useContract } from '../hooks/useContract';
 import { useLighthouseUpload } from '../hooks/useLighthouse';
 import { lighthouseUtils } from '../utils/lighthouse';
+import { id } from 'ethers';
+import { walletConnection } from '@/utils/wallet';
+
+const account = await walletConnection.getCurrentAccount();
 
 export const PostCreatorWithLighthouse: React.FC = () => {
   const { createPost, isLoading: isCreatingPost, error: contractError } = useContract();
@@ -53,7 +57,7 @@ export const PostCreatorWithLighthouse: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSuccess(null);
     reset();
@@ -62,6 +66,13 @@ export const PostCreatorWithLighthouse: React.FC = () => {
       alert('Please fill in all fields and select an image');
       return;
     }
+
+    let imageHash = '';
+    let metadataHash = '';
+    let tokenId = 0;
+    // Assuming 'creator' (wallet address) is available from a context or prop
+    // Replace 'yourCreatorWalletAddress' with the actual source (e.g., walletContext.address)
+    const creator = 'yourCreatorWalletAddress'; 
 
     try {
       // Step 1: Upload image and metadata to Lighthouse
@@ -76,8 +87,10 @@ export const PostCreatorWithLighthouse: React.FC = () => {
           { trait_type: 'Storage', value: 'Lighthouse' },
           { trait_type: 'Created', value: new Date().toISOString() }
         ],
-        (imageHash, metadataHash) => {
-          setUploadedHashes({ imageHash, metadataHash });
+        (imgH, metaH) => {
+          imageHash = imgH;
+          metadataHash = metaH;
+          setUploadedHashes({ imageHash: imgH, metadataHash: metaH });
           console.log('Upload successful:', { imageHash, metadataHash });
         }
       );
@@ -86,16 +99,51 @@ export const PostCreatorWithLighthouse: React.FC = () => {
         throw new Error(uploadResult?.error || 'Failed to upload to IPFS');
       }
 
+      // Ensure metadataHash is captured from the result if the callback wasn't called synchronously
+      metadataHash = uploadResult.metadataHash; 
+
       // Step 2: Create post on blockchain
       console.log('Creating post on blockchain...');
-      const tokenId = await createPost({
-        ipfsHash: uploadResult.metadataHash,
+      const createdTokenId = await createPost({
+        ipfsHash: metadataHash,
         title: formData.title,
         description: formData.description
       }, (id) => {
+        tokenId = id;
         setSuccess(`Post created successfully! Token ID: ${id}`);
         console.log('Post created with token ID:', id);
       });
+      
+      // Use the ID returned directly if the callback isn't guaranteed to be executed/reliable
+      if (createdTokenId && !tokenId) {
+          tokenId = createdTokenId;
+      }
+
+      if (!tokenId) {
+          throw new Error('Failed to retrieve Token ID from blockchain transaction.');
+      }
+      
+      // Step 3: Send to backend (FIXED)
+      console.log('Sending post data to backend...');
+      const response = await fetch('http://localhost:3000/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          ipfs_hash: imageHash,          
+          creator: account
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save post to backend: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('Post saved to backend:', data);
 
       // Reset form on success
       setFormData({
