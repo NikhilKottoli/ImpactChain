@@ -101,7 +101,7 @@ const socialMediaCardRenderer = (
         <img
           src={card.postImage}
           alt="Post content"
-          className="w-full h-80 object-cover"
+          className="w-full h-80 object-cover "
           draggable={false}
         />
       )}
