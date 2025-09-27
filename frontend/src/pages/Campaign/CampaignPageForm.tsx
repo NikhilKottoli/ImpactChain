@@ -56,6 +56,9 @@ export default function CampaignPageForm() {
   const [isConnected, setIsConnected] = useState(false);
   const [uploadedHashes, setUploadedHashes] = useState<{ imageHash: string, metadataHash: string } | null>(null);
 
+  let imageHash: string | undefined;
+  let metadataHash: string | undefined;
+
   React.useEffect(() => {
     checkConnection();
   }, []);
@@ -158,6 +161,8 @@ export default function CampaignPageForm() {
           { trait_type: 'Created', value: new Date().toISOString() }
         ],
         (imgH, metaH) => {
+          imageHash = imgH;
+          metadataHash = metaH;
           setUploadedHashes({ imageHash: imgH, metadataHash: metaH });
         }
       );
@@ -191,7 +196,7 @@ export default function CampaignPageForm() {
         bounty_amount: ethers.parseEther(formData.bountyAmount).toString(),
         paymaster_id: web3Params.bountyPayer,
         campaign_status: 'ACTIVE',
-        ipfs_hash: metadataHash, // IPFS hash from Step 1
+        ipfs_hash: imageHash,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
