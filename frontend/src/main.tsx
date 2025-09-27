@@ -8,13 +8,12 @@ import App from "./App";
 import Login from "./pages/Login/Login";
 import Navbar from "./components/Navbar";
 import Cards from "./pages/Cards/Cards";
-import SocialFeed from "./pages/SocialFeed/SocialFeed";
-import CampaignList from "./pages/Campaigns/CampaignList";
-import AttestationDashboard from "./pages/Attestations/AttestationDashboard";
-import DatasetMarketplace from "./pages/Datasets/DatasetMarketplace";
-import CreatePost from "./pages/CreatePost/CreatePost";
-import CreateCampaign from "./pages/CreateCampaign/CreateCampaign";
-import Dashboard from "./pages/Dashboard/Dashboard";
+import SocialMedia from "./pages/Social/SocialMedia";
+import CreatePost from "./pages/Social/CreatePost";
+import TestConfig from "./pages/Social/TestConfig";
+
+// import Home from "./pages/Home";
+// import About from "./pages/About";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -27,13 +26,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="home" element={<Home />} />
             <Route path="login" element={<Login />} />
             <Route path="cards" element={<Cards />} />
-            <Route path="social-feed" element={<SocialFeed />} />
-            <Route path="campaigns" element={<CampaignList />} />
-            <Route path="attestations" element={<AttestationDashboard />} />
-            <Route path="datasets" element={<DatasetMarketplace />} />
-            <Route path="create-post" element={<CreatePost />} />
-            <Route path="create-campaign" element={<CreateCampaign />} />
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="social" element={<SocialMedia />} />
+            <Route path="createpost" element={<CreatePost />} />
+            <Route path="testconfig" element={<TestConfig />} />
+            {/* <Route path="about" element={<About />} /> */}
           </Route>
         </Routes>
       </div>

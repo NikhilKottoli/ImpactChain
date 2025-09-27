@@ -1,34 +1,24 @@
 import { useState } from "react";
-import {
-  Bell,
-  CreditCard,
-  Map,
-  Repeat,
-  Search,
-  Camera,
-  Calendar,
-  Shield,
-  Database,
-  Home,
-  LogIn,
-} from "lucide-react";
+import { Bell, CreditCard, Map, Repeat, Search, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { WalletConnect } from "./WalletConnect";
 
 const navItems = [
-  { icon: Home, label: "Dashboard", path: "/" },
-  { icon: Camera, label: "Feed", path: "/social-feed" },
-  { icon: Calendar, label: "Campaigns", path: "/campaigns" },
-  { icon: Shield, label: "Verify", path: "/attestations" },
-  { icon: Database, label: "Data", path: "/datasets" },
-];
-
-const secondaryNavItems = [
   { icon: CreditCard, label: "Cards", path: "/cards" },
-  { icon: LogIn, label: "Login", path: "/login" },
+  { icon: Users, label: "Social", path: "/social" },
+  { icon: Map, label: "Map", path: "/map" },
+  { icon: Search, label: "Search", path: "/search" },
+  { icon: Bell, label: "Notifications", path: "/notifications" },
 ];
 
 export default function Navbar() {
   const location = useLocation();
+  const getActiveIndex = () => {
+    const currentPath = location.pathname;
+    const index = navItems.findIndex(item => item.path === currentPath);
+    return index >= 0 ? index : 0;
+  };
+  const [active, setActive] = useState(getActiveIndex());
 
   return (
     <>
@@ -57,12 +47,8 @@ export default function Navbar() {
         </div> */}
 
         {/* Right: Wallet & Profile */}
-        <div className="flex items-center gap-2 bg-white px-2 py-2 rounded-full shadow-md border border-gray-200">
-          <Link to="/login">
-            <button className="px-4 py-2 rounded-full border border-gray-300 bg-gray-100 cursor-pointer font-medium text-sm hover:bg-gray-200">
-              Connect Wallet
-            </button>
-          </Link>
+        <div className="flex items-center gap-2 bg-white px-2 py-2 rounded-full shadow-md">
+          <WalletConnect />
           <img
             src="https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg"
             alt="Profile"
@@ -72,55 +58,26 @@ export default function Navbar() {
       </nav>
 
       {/* Bottom Tab Bar */}
-      <nav className="w-full fixed left-0 lg:top-6 lg:bottom-auto bottom-5 px-6">
-        <div className="w-full max-w-[700px] bg-white z-50 flex justify-around items-center py-4 mx-auto rounded-full shadow-xl border border-gray-200">
-          {navItems.map((item, idx) => {
-            const isActive =
-              location.pathname === item.path ||
-              (item.path === "/" && location.pathname === "/dashboard");
-            return (
-              <Link
-                key={item.label}
-                to={item.path}
-                className={`flex flex-col items-center focus:outline-none relative transition-colors ${
-                  isActive
-                    ? "text-blue-500"
-                    : "text-gray-600 hover:text-blue-400"
-                }`}
-              >
-                <item.icon className="mb-1 w-5 h-5" />
-                <span className="text-xs font-medium">{item.label}</span>
-                {isActive && (
-                  <div className="absolute -bottom-4 left-0 w-full h-1 bg-blue-500 rounded-full"></div>
-                )}
-              </Link>
-            );
-          })}
-
-          {/* Divider */}
-          <div className="w-px h-8 bg-gray-300"></div>
-
-          {/* Secondary Items */}
-          {secondaryNavItems.map((item, idx) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.label}
-                to={item.path}
-                className={`flex flex-col items-center focus:outline-none relative transition-colors ${
-                  isActive
-                    ? "text-purple-500"
-                    : "text-gray-600 hover:text-purple-400"
-                }`}
-              >
-                <item.icon className="mb-1 w-5 h-5" />
-                <span className="text-xs font-medium">{item.label}</span>
-                {isActive && (
-                  <div className="absolute -bottom-4 left-0 w-full h-1 bg-purple-500 rounded-full"></div>
-                )}
-              </Link>
-            );
-          })}
+      <nav className="w-full fixed left-0 lg:top-5 lg:bottom-auto bottom-5 px-6">
+        <div className="w-full max-w-[600px] bg-white z-50 flex justify-around items-center py-6 mx-auto rounded-full shadow-xl">
+          {navItems.map((item, idx) => (
+            <Link
+              key={item.label}
+              to={item.path}
+              className={`flex flex-col items-center focus:outline-none relative ${
+                location.pathname === item.path
+                  ? "text-blue-400"
+                  : "text-gray-600 hover:text-blue-400"
+              }`}
+              onClick={() => setActive(idx)}
+            >
+              <item.icon className="mb-1 w-6 h-6" />
+              <span className="text-xs">{item.label}</span>
+              {location.pathname === item.path && (
+                <div className="absolute -bottom-6 left-0 w-full h-1 bg-blue-400 rounded-full"></div>
+              )}
+            </Link>
+          ))}
         </div>
       </nav>
     </>
