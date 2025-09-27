@@ -32,7 +32,7 @@ export default function SocialMedia() {
           </p>
 
           {/* Wallet Connection */}
-          <div className="flex justify-center mb-6 space-x-4">
+          {/* <div className="flex justify-center mb-6 space-x-4">
             <WalletConnect />
             <button
               onClick={() => navigate("/testconfig")}
@@ -40,12 +40,12 @@ export default function SocialMedia() {
             >
               Test Config
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Action Buttons */}
         <div className="flex justify-center mb-8 space-x-4">
-          <div className="bg-white rounded-lg p-1 shadow-md flex">
+          {/* <div className="bg-white rounded-lg p-1 shadow-md flex">
             <button
               onClick={() => setActiveTab("feed")}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
@@ -67,7 +67,7 @@ export default function SocialMedia() {
             >
               My Profile
             </button>
-          </div>
+          </div> */}
 
           {/* Create Post Button */}
           <button
