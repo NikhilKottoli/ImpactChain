@@ -15,7 +15,8 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import BgDynamic from "./components/BgDynamic";
 import CampaignPage from "./pages/Campaign/CampaignPage";
-import CreateCampaignForm from "./pages/Campaign/CreateCampaignForm";
+import CreateCampaignForm from "./pages/Campaign/CampaignPageForm";
+import CampaignFeed from "./pages/Campaign/CampaignFeed";
 // import Home from "./pages/Home";
 // import About from "./pages/About";
 

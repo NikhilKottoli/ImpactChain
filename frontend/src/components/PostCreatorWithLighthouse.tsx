@@ -1,26 +1,30 @@
-import React, { useState } from 'react';
-import { useContract } from '../hooks/useContract';
-import { useLighthouseUpload } from '../hooks/useLighthouse';
-import { lighthouseUtils } from '../utils/lighthouse';
-import { Button } from './ui/button';
-import { id } from 'ethers';
-import { walletConnection } from '@/utils/wallet';
+import React, { useState } from "react";
+import { useContract } from "../hooks/useContract";
+import { useLighthouseUpload } from "../hooks/useLighthouse";
+import { lighthouseUtils } from "../utils/lighthouse";
+import { Button } from "./ui/button";
+import { id } from "ethers";
+import { walletConnection } from "@/utils/wallet";
 const account = await walletConnection.getCurrentAccount();
 
 export const PostCreatorWithLighthouse: React.FC = () => {
-  const { createPost, isLoading: isCreatingPost, error: contractError } = useContract();
-  const { 
-    isUploading, 
-    uploadProgress, 
-    error: uploadError, 
+  const {
+    createPost,
+    isLoading: isCreatingPost,
+    error: contractError,
+  } = useContract();
+  const {
+    isUploading,
+    uploadProgress,
+    error: uploadError,
     uploadCompletePost,
-    reset 
+    reset,
   } = useLighthouseUpload();
 
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    imageFile: null as File | null
+    title: "",
+    description: "",
+    imageFile: null as File | null,
   });
   const [success, setSuccess] = useState<string | null>(null);
   const [uploadedHashes, setUploadedHashes] = useState<{
@@ -28,10 +32,12 @@ export const PostCreatorWithLighthouse: React.FC = () => {
     metadataHash?: string;
   }>({});
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -39,104 +45,111 @@ export const PostCreatorWithLighthouse: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
+      if (!file.type.startsWith("image/")) {
+        alert("Please select an image file");
         return;
       }
-      
+
       // Validate file size (50MB max for Lighthouse)
       if (file.size > 50 * 1024 * 1024) {
-        alert('File size must be less than 50MB');
+        alert("File size must be less than 50MB");
         return;
       }
-      
-      setFormData(prev => ({
+
+      setFormData((prev) => ({
         ...prev,
-        imageFile: file
+        imageFile: file,
       }));
     }
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSuccess(null);
     reset();
 
     if (!formData.imageFile || !formData.title || !formData.description) {
-      alert('Please fill in all fields and select an image');
+      alert("Please fill in all fields and select an image");
       return;
     }
 
-    let imageHash = '';
-    let metadataHash = '';
+    let imageHash = "";
+    let metadataHash = "";
     let tokenId = 0;
 
     try {
       // Step 1: Upload image and metadata to Lighthouse
-      console.log('Uploading to Lighthouse...');
+      console.log("Uploading to Lighthouse...");
       const uploadResult = await uploadCompletePost(
         formData.imageFile,
         formData.title,
         formData.description,
         [
-          { trait_type: 'Type', value: 'Social Media Post' },
-          { trait_type: 'Platform', value: 'Social Impact Platform' },
-          { trait_type: 'Storage', value: 'Lighthouse' },
-          { trait_type: 'Created', value: new Date().toISOString() }
+          { trait_type: "Type", value: "Social Media Post" },
+          { trait_type: "Platform", value: "Social Impact Platform" },
+          { trait_type: "Storage", value: "Lighthouse" },
+          { trait_type: "Created", value: new Date().toISOString() },
         ],
         (imgH, metaH) => {
           imageHash = imgH;
           metadataHash = metaH;
           setUploadedHashes({ imageHash: imgH, metadataHash: metaH });
-          console.log('Upload successful:', { imageHash, metadataHash });
+          console.log("Upload successful:", { imageHash, metadataHash });
         }
       );
 
       if (!uploadResult?.success || !uploadResult.metadataHash) {
-        throw new Error(uploadResult?.error || 'Failed to upload to IPFS');
+        throw new Error(uploadResult?.error || "Failed to upload to IPFS");
       }
 
       // Ensure metadataHash is captured from the result if the callback wasn't called synchronously
-      metadataHash = uploadResult.metadataHash; 
+      metadataHash = uploadResult.metadataHash;
 
       // Step 2: Create post on blockchain
-      console.log('Creating post on blockchain...');
-      const createdTokenId = await createPost({
-        ipfsHash: metadataHash,
-        title: formData.title,
-        description: formData.description
-      }, (id) => {
-        tokenId = id;
-        setSuccess(`Post created successfully! Token ID: ${id}`);
-        console.log('Post created with token ID:', id);
-      });
-      
+      console.log("Creating post on blockchain...");
+      const createdTokenId = await createPost(
+        {
+          ipfsHash: metadataHash,
+          title: formData.title,
+          description: formData.description,
+        },
+        (id) => {
+          tokenId = id;
+          setSuccess(`Post created successfully! Token ID: ${id}`);
+          console.log("Post created with token ID:", id);
+        }
+      );
+
       // Use the ID returned directly if the callback isn't guaranteed to be executed/reliable
       if (createdTokenId && !tokenId) {
-          tokenId = createdTokenId;
+        tokenId = createdTokenId;
       }
 
       if (!tokenId) {
-          throw new Error('Failed to retrieve Token ID from blockchain transaction.');
+        throw new Error(
+          "Failed to retrieve Token ID from blockchain transaction."
+        );
       }
-      
+
       // Step 3: Send to backend (FIXED)
-      console.log('Sending post data to backend...');
-      const response = await fetch('http://localhost:3000/posts', {
-        method: 'POST',
+      console.log("Sending post data to backend...");
+      const response = await fetch("http://localhost:3000/posts", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           title: formData.title,
           description: formData.description,
-          ipfs_hash: imageHash,          
-          creator: account
-        })
+          ipfs_hash: imageHash,
+          creator: account,
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to save post to backend: ${response.statusText}`);
+        throw new Error(
+          `Failed to save post to backend: ${response.statusText}`
+        );
       }
 
       const data = await response.json();
@@ -151,17 +164,18 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       // Reset form on success
       setFormData({
-        title: '',
-        description: '',
-        imageFile: null
+        title: "",
+        description: "",
+        imageFile: null,
       });
-      
-      // Reset file input
-      const fileInput = document.getElementById('imageFile') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
 
+      // Reset file input
+      const fileInput = document.getElementById(
+        "imageFile"
+      ) as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
     } catch (err) {
-      console.error('Error creating post:', err);
+      console.error("Error creating post:", err);
     }
   };
 
@@ -170,24 +184,13 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-card border border-border rounded-lg shadow-lg">
-      <h2 className="text-3xl font-bold mb-6 text-center text-card-foreground">
-        Create New Post
-      </h2>
-      
-      <div className="mb-4 p-4 bg-accent/20 rounded-lg border border-accent/30">
-        <h3 className="text-sm font-medium text-accent-foreground mb-2">🚀 Powered by Lighthouse Storage</h3>
-        <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-          <li><strong>Permanent Storage:</strong> Your files are stored forever with one-time payment</li>
-          <li><strong>Decentralized:</strong> Files stored across Filecoin network for reliability</li>
-          <li><strong>Fast Access:</strong> Optimized IPFS gateways for quick retrieval</li>
-          <li><strong>No Recurring Costs:</strong> Pay once, store forever</li>
-        </ul>
-      </div>
-      
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
+          <label
+            htmlFor="title"
+            className="block text-sm font-medium text-foreground mb-2"
+          >
             Post Title *
           </label>
           <input
@@ -208,7 +211,10 @@ const handleSubmit = async (e: React.FormEvent) => {
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-foreground mb-2">
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium text-foreground mb-2"
+          >
             Description *
           </label>
           <textarea
@@ -229,7 +235,10 @@ const handleSubmit = async (e: React.FormEvent) => {
 
         {/* Image Upload */}
         <div>
-          <label htmlFor="imageFile" className="block text-sm font-medium text-foreground mb-2">
+          <label
+            htmlFor="imageFile"
+            className="block text-sm font-medium text-foreground mb-2"
+          >
             Post Image *
           </label>
           <div className="relative">
@@ -245,7 +254,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               Supported formats: JPG, PNG, GIF, WebP (max 50MB)
             </p>
           </div>
-          
+
           {/* Image Preview */}
           {formData.imageFile && (
             <div className="mt-4">
@@ -255,7 +264,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                 className="w-full h-48 object-cover rounded-lg border border-border"
               />
               <p className="text-xs text-muted-foreground mt-2">
-                File: {formData.imageFile.name} ({lighthouseUtils.formatFileSize(formData.imageFile.size)})
+                File: {formData.imageFile.name} (
+                {lighthouseUtils.formatFileSize(formData.imageFile.size)})
               </p>
             </div>
           )}
@@ -272,11 +282,13 @@ const handleSubmit = async (e: React.FormEvent) => {
             <div className="flex items-center justify-center space-x-2">
               <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
               <span>
-                {isUploading ? 'Uploading to Lighthouse...' : 'Creating Post...'}
+                {isUploading
+                  ? "Uploading to Lighthouse..."
+                  : "Creating Post..."}
               </span>
             </div>
           ) : (
-            'Create Post'
+            "Create Post"
           )}
         </Button>
       </form>
@@ -289,7 +301,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             <span>{uploadProgress}%</span>
           </div>
           <div className="w-full bg-muted rounded-full h-2">
-            <div 
+            <div
               className="bg-primary h-2 rounded-full transition-all duration-300"
               style={{ width: `${uploadProgress}%` }}
             ></div>
@@ -300,12 +312,16 @@ const handleSubmit = async (e: React.FormEvent) => {
       {/* Uploaded Hashes Info */}
       {uploadedHashes.imageHash && (
         <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border">
-          <h4 className="text-sm font-medium text-foreground mb-2">IPFS Upload Complete</h4>
+          <h4 className="text-sm font-medium text-foreground mb-2">
+            IPFS Upload Complete
+          </h4>
           <div className="space-y-2 text-xs">
             <div>
               <span className="font-medium text-foreground">Image Hash:</span>
               <br />
-              <span className="font-mono text-muted-foreground">{uploadedHashes.imageHash}</span>
+              <span className="font-mono text-muted-foreground">
+                {uploadedHashes.imageHash}
+              </span>
               <a
                 href={lighthouseUtils.getImageUrl(uploadedHashes.imageHash)}
                 target="_blank"
@@ -317,11 +333,17 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
             {uploadedHashes.metadataHash && (
               <div>
-                <span className="font-medium text-foreground">Metadata Hash:</span>
+                <span className="font-medium text-foreground">
+                  Metadata Hash:
+                </span>
                 <br />
-                <span className="font-mono text-muted-foreground">{uploadedHashes.metadataHash}</span>
+                <span className="font-mono text-muted-foreground">
+                  {uploadedHashes.metadataHash}
+                </span>
                 <a
-                  href={lighthouseUtils.getImageUrl(uploadedHashes.metadataHash)}
+                  href={lighthouseUtils.getImageUrl(
+                    uploadedHashes.metadataHash
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="ml-2 text-primary hover:underline"
@@ -338,8 +360,16 @@ const handleSubmit = async (e: React.FormEvent) => {
       {error && (
         <div className="mt-4 p-4 bg-destructive/10 border border-destructive/20 text-destructive rounded-lg">
           <div className="flex items-center">
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
             </svg>
             <span className="text-sm">{error}</span>
           </div>
@@ -358,8 +388,16 @@ const handleSubmit = async (e: React.FormEvent) => {
       {success && (
         <div className="mt-4 p-4 bg-primary/10 border border-primary/20 text-primary rounded-lg">
           <div className="flex items-center">
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
             </svg>
             <span className="text-sm font-medium">{success}</span>
           </div>
@@ -367,18 +405,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       )}
 
       {/* Instructions */}
-      <div className="mt-6 p-4 bg-secondary/20 rounded-lg border border-secondary/30">
-        <h4 className="text-sm font-medium text-secondary-foreground mb-2">How it works with Lighthouse:</h4>
-        <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-          <li>Your image is uploaded to IPFS via Lighthouse's permanent storage</li>
-          <li>Post metadata (title, description, image reference) is created and uploaded to IPFS</li>
-          <li>An NFT is minted on the blockchain with the metadata IPFS hash</li>
-          <li>Your post becomes part of the decentralized social network with permanent storage!</li>
-        </ol>
-        <p className="text-xs text-muted-foreground mt-2">
-          <strong>Lighthouse Benefits:</strong> Pay once, store forever • Decentralized • Fast retrieval • No recurring costs
-        </p>
-      </div>
+     
     </div>
   );
 };
