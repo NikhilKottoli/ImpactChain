@@ -34,11 +34,18 @@ export class WalletConnection {
 
   // Get current account
   async getCurrentAccount(): Promise<string | null> {
-    if (!this.provider) return null;
+    if (!this.isMetaMaskInstalled()) return null;
     
     try {
-      const signer = await this.provider.getSigner();
-      return await signer.getAddress();
+      // If we have a provider, use it
+      if (this.provider) {
+        const signer = await this.provider.getSigner();
+        return await signer.getAddress();
+      }
+      
+      // Otherwise, check MetaMask directly
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      return accounts.length > 0 ? accounts[0] : null;
     } catch {
       return null;
     }
@@ -57,13 +64,34 @@ export class WalletConnection {
 
   // Check if connected
   async isConnected(): Promise<boolean> {
-    if (!this.provider) return false;
+    if (!this.isMetaMaskInstalled()) return false;
     
     try {
-      const accounts = await this.provider.listAccounts();
+      // First check if we have a provider
+      if (this.provider) {
+        const accounts = await this.provider.listAccounts();
+        return accounts.length > 0;
+      }
+      
+      // If no provider, check MetaMask directly
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
       return accounts.length > 0;
     } catch {
       return false;
+    }
+  }
+
+  // Initialize provider if MetaMask is connected but provider isn't set
+  async initializeProvider(): Promise<void> {
+    if (!this.isMetaMaskInstalled()) return;
+    
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accounts.length > 0 && !this.provider) {
+        this.provider = new ethers.BrowserProvider(window.ethereum);
+      }
+    } catch (error) {
+      console.error('Failed to initialize provider:', error);
     }
   }
 
