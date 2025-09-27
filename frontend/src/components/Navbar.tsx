@@ -26,7 +26,7 @@ export default function Navbar() {
     <>
       <nav className="flex items-center justify-between px-12 py-6   fixed w-full top-0 left-0 z-50 ">
         {/* Left: Platform Logo */}
-        <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center z-60">
           <img src="/logo.png" alt="Platform Logo" className="h-12 mr-3" />
           <div>
             <span className="font-bold text-xl text-gray-900">ImpactDAO</span>
@@ -55,7 +55,7 @@ export default function Navbar() {
       </nav>
 
       {/* Bottom Tab Bar */}
-      <nav className="w-full fixed left-0 lg:top-5 lg:bottom-auto bottom-5 px-6">
+      <nav className="w-full fixed left-0 lg:top-5 lg:bottom-auto bottom-5 px-6 z-50 ">
         <div className="w-full max-w-[600px] bg-white z-50 flex justify-around items-center py-6 mx-auto rounded-full shadow-xl">
           {navItems.map((item, idx) => (
             <Link
