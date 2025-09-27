@@ -422,7 +422,7 @@ const CreateCampaign: React.FC = () => {
       <img
         src="/share.png"
         alt=""
-        className="w-full md:w-[40%] object-contain md:fixed -bottom-[100px] left-0 hidden md:block pointer-events-none select-none"
+        className="w-full md:w-[60%] object-contain md:fixed -bottom-[100px] left-0 hidden md:block pointer-events-none select-none bg-amber-200"
       />
     </div>
   );

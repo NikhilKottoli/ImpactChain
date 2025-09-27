@@ -128,7 +128,7 @@ export default function CreatePost() {
       <img
         src="/share.png"
         alt=""
-        className="w-full md:w-[40%] object-contain md:fixed -bottom-[100px] left-0 hidden md:block"
+        className="w-full md:w-[50%] object-contain md:fixed -bottom-[170px] left-0 hidden md:block"
       />
     </div>
   );

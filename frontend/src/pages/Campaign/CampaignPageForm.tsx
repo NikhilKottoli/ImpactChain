@@ -270,7 +270,7 @@ export default function CampaignPageForm() {
   return (
     <div className="min-h-screen pt-20 flex flex-col md:flex-row px-4 md:px-32 ">
       {/* Left Column - fixed on desktop, top on mobile */}
-      <div className="w-full md:w-1/3 md:fixed md:top-40 md:left-0 md:h-[calc(100vh-5rem)] md:overflow-y-auto p-4 md:p-8 md:ml-32">
+      <div className="w-full md:w-1/3 md:fixed md:top-40 md:left-0 md:h-[calc(100vh-5rem)] md:overflow-y-auto p-4 md:p-8 md:ml-0">
         {/* Header */}
         <div className="mb-8">
           <Button
@@ -350,11 +350,11 @@ export default function CampaignPageForm() {
       </div>
 
       {/* Right Column - scrollable, full width on mobile */}
-      <div className="w-full md:w-1/2 md:ml-[50%] min-h-screen overflow-y-auto mt-6 md:mt-0">
-        <div className="p-4 md:p-8">
+      <div className="relative w-full md:w-1/2 md:ml-[50%] min-h-screen overflow-y-auto mt-6 md:mt-0 ">
+        <div className="p-4 pl-0 md:p-8">
           {/* Wallet Connection Check */}
           {!isConnected ? (
-            <div className="max-w-md mx-auto text-center py-8 md:py-12">
+            <div className="max-w-md mx-auto text-center py-8 md:py-12 pl-0">
               <div className="bg-card border border-border rounded-lg p-6 md:p-8 shadow-md">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg
@@ -680,7 +680,7 @@ export default function CampaignPageForm() {
       <img
         src="/campaign.png"
         alt=""
-        className="w-full md:w-[40%] object-contain md:fixed -bottom-[0px] left-0 hidden md:block grayscale"
+        className="w-full md:w-[50%] object-contain md:fixed -bottom-[0px] left-0 hidden md:block grayscale"
       />
     </div>
   );
