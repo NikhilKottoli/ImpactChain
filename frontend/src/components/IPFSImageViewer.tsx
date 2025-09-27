@@ -18,7 +18,7 @@ export const IPFSImageViewer: React.FC<IPFSImageViewerProps> = ({
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string>('');
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!ipfsHash || !lighthouseUtils.isValidIPFSHash(ipfsHash)) {
@@ -101,13 +101,15 @@ export const IPFSImageViewer: React.FC<IPFSImageViewerProps> = ({
         </div>
       )}
       
-      <img
-        src={imageUrl}
-        alt={alt}
-        onLoad={handleLoad}
-        onError={handleError}
-        className={`w-full h-full object-cover rounded-lg ${loading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
-      />
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          alt={alt}
+          onLoad={handleLoad}
+          onError={handleError}
+          className={`w-full h-full object-cover rounded-lg ${loading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
+        />
+      )}
       
       {showHash && !loading && !error && (
         <div className="absolute bottom-2 left-2 right-2">

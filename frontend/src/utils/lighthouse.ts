@@ -43,7 +43,7 @@ export class LighthouseService {
         return {
           success: true,
           ipfsHash: response.data.Hash,
-          size: response.data.Size || file.size,
+          size: typeof response.data.Size === 'number' ? response.data.Size : file.size,
           name: response.data.Name || file.name
         };
       } else {
@@ -126,7 +126,7 @@ export class LighthouseService {
 
   // Get gateway URL for IPFS hash
   getGatewayUrl(ipfsHash: string): string {
-    return `${this.gateway}${ipfsHash}`;
+    return `${FALLBACK_GATEWAY}${ipfsHash}`; // Use ipfs.io as primary gateway
   }
 
   // Get fallback gateway URL
@@ -137,10 +137,12 @@ export class LighthouseService {
   // Get multiple gateway URLs for redundancy
   getAllGatewayUrls(ipfsHash: string): string[] {
     return [
-      `${this.gateway}${ipfsHash}`,
-      `${FALLBACK_GATEWAY}${ipfsHash}`,
+      `${FALLBACK_GATEWAY}${ipfsHash}`, // Start with ipfs.io as primary
       `https://cloudflare-ipfs.com/ipfs/${ipfsHash}`,
-      `https://dweb.link/ipfs/${ipfsHash}`
+      `https://dweb.link/ipfs/${ipfsHash}`,
+      `${this.gateway}${ipfsHash}`, // Lighthouse gateway as fallback
+      `https://ipfs.filebase.io/ipfs/${ipfsHash}`,
+      `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
     ];
   }
 

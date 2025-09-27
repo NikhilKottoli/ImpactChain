@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { socialMediaContract, initializeContract } from '../utils/contract';
 import { walletConnection } from '../utils/wallet';
+import { supabaseService } from '../utils/supabaseService';
 import type { Post, CreatePostParams } from '../types/contract';
 
 // Hook for wallet connection
@@ -165,6 +166,16 @@ export const useContract = () => {
       }
       
       if (tokenId !== null) {
+        // Sync to Supabase
+        try {
+          const blockchainPost = await socialMediaContract.getPost(tokenId);
+          await supabaseService.syncBlockchainPostToSupabase(blockchainPost);
+          console.log('Post synced to Supabase successfully');
+        } catch (syncError) {
+          console.error('Failed to sync post to Supabase:', syncError);
+          // Don't fail the transaction if Supabase sync fails
+        }
+        
         onSuccess?.(tokenId);
         return tokenId;
       }
@@ -192,6 +203,27 @@ export const useContract = () => {
     return executeTransaction(async () => {
       const tx = await socialMediaContract.likePost(tokenId);
       await tx.wait();
+      
+      // Sync interaction to Supabase
+      try {
+        const currentAddress = await walletConnection.getCurrentAccount();
+        if (currentAddress) {
+          const post = await socialMediaContract.getPost(tokenId);
+          await supabaseService.recordInteraction({
+            postId: tokenId.toString(), // Using tokenId as postId for now
+            userAddress: currentAddress,
+            interactionType: 'like',
+          });
+          
+          // Update post likes in Supabase
+          await supabaseService.updatePostLikes(tokenId, post.likes);
+          console.log('Like interaction synced to Supabase');
+        }
+      } catch (syncError) {
+        console.error('Failed to sync like to Supabase:', syncError);
+        // Don't fail the transaction if Supabase sync fails
+      }
+      
       onSuccess?.();
       return true;
     });
@@ -206,6 +238,28 @@ export const useContract = () => {
     return executeTransaction(async () => {
       const tx = await socialMediaContract.cheerPost(tokenId, amount);
       await tx.wait();
+      
+      // Sync interaction to Supabase
+      try {
+        const currentAddress = await walletConnection.getCurrentAccount();
+        if (currentAddress) {
+          const post = await socialMediaContract.getPost(tokenId);
+          await supabaseService.recordInteraction({
+            postId: tokenId.toString(), // Using tokenId as postId for now
+            userAddress: currentAddress,
+            interactionType: 'cheer',
+            amount: amount,
+          });
+          
+          // Update post earnings in Supabase
+          await supabaseService.updatePostEarnings(tokenId, post.totalEarnings.toString());
+          console.log('Cheer interaction synced to Supabase');
+        }
+      } catch (syncError) {
+        console.error('Failed to sync cheer to Supabase:', syncError);
+        // Don't fail the transaction if Supabase sync fails
+      }
+      
       onSuccess?.();
       return true;
     });

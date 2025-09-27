@@ -3,11 +3,14 @@ import { lighthouseService } from '../utils/lighthouse';
 import { socialMediaContract, CONTRACT_CONFIG } from '../utils/contract';
 import { walletConnection } from '../utils/wallet';
 import { NetworkSwitcher } from './NetworkSwitcher';
+import { supabaseService } from '../utils/supabaseService';
+import { supabase } from '../utils/supabase';
 
 export const ConfigurationTest: React.FC = () => {
   const [tests, setTests] = useState({
     lighthouseConnection: { status: 'pending', message: '' },
     contractABI: { status: 'pending', message: '' },
+    supabaseConnection: { status: 'pending', message: '' },
     walletConnection: { status: 'pending', message: '' },
     gatewayAccess: { status: 'pending', message: '' }
   });
@@ -96,7 +99,53 @@ export const ConfigurationTest: React.FC = () => {
       }));
     }
 
-    // Test 3: Wallet Connection
+    // Test 3: Supabase Connection
+    setTests(prev => ({
+      ...prev,
+      supabaseConnection: { status: 'testing', message: 'Testing Supabase connection...' }
+    }));
+
+    try {
+      // Check if Supabase is configured
+      if (!supabase) {
+        setTests(prev => ({
+          ...prev,
+          supabaseConnection: {
+            status: 'warning',
+            message: 'Supabase not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.'
+          }
+        }));
+        return;
+      }
+
+      // Test basic connection
+      const { data, error } = await supabase
+        .from('users')
+        .select('count')
+        .limit(1);
+
+      if (error) {
+        throw error;
+      }
+
+      setTests(prev => ({
+        ...prev,
+        supabaseConnection: {
+          status: 'success',
+          message: 'Supabase connected successfully! Database accessible ✅'
+        }
+      }));
+    } catch (error) {
+      setTests(prev => ({
+        ...prev,
+        supabaseConnection: {
+          status: 'error',
+          message: `Supabase connection error: ${error instanceof Error ? error.message : 'Unknown error'}`
+        }
+      }));
+    }
+
+    // Test 4: Wallet Connection
     setTests(prev => ({
       ...prev,
       walletConnection: { status: 'testing', message: 'Checking wallet availability...' }
@@ -255,6 +304,8 @@ export const ConfigurationTest: React.FC = () => {
           <p><strong>Primary Gateway:</strong> gateway.lighthouse.storage</p>
           <p><strong>Fallback Gateway:</strong> ipfs.io</p>
           <p><strong>Lighthouse API Key:</strong> {import.meta.env.VITE_LIGHTHOUSE_API_KEY || '239777d2.c5fe3f8d06e34c27be7f7d5cf99f007d' ? 'Configured ✅' : 'Missing ❌'}</p>
+          <p><strong>Supabase URL:</strong> {import.meta.env.VITE_SUPABASE_URL ? 'Configured ✅' : 'Missing ❌'}</p>
+          <p><strong>Supabase Key:</strong> {import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Configured ✅' : 'Missing ❌'}</p>
         </div>
         
         {/* Network Switcher */}
