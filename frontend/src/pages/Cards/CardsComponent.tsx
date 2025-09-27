@@ -14,6 +14,7 @@ import { WalletConnect } from "../../components/WalletConnect";
 import { useWallet, usePosts, useContract } from "../../hooks/useContract";
 import { PostImageViewer } from "../../components/IPFSImageViewer";
 import { formatEther } from "../../utils/wallet";
+import { TwitterShareSocialPost } from "../../components/TwitterShareButton";
 
 // Types
 interface CardData {
@@ -720,6 +721,24 @@ const SocialMediaCards: React.FC = () => {
             />
           </svg>
         </button>
+        
+        {/* Twitter Share Button for Current Card */}
+        {cards.length > 0 && (
+          <TwitterShareSocialPost
+            title={cards[0].title || "Social Impact Post"}
+            description={cards[0].description || cards[0].caption}
+            image={cards[0].ipfsHash}
+            variant="icon"
+            size="lg"
+            className="bg-white shadow-xl hover:bg-gray-50 w-16 h-16 rounded-full border border-gray-200 transition-colors flex items-center justify-center"
+            onSuccess={(response) => {
+              console.log('Successfully shared card:', response);
+            }}
+            onError={(error) => {
+              console.error('Failed to share card:', error);
+            }}
+          />
+        )}
       </div>
 
       {/* Cheer Modal */}

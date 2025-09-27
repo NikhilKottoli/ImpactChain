@@ -8,6 +8,7 @@ import {
   Shield,
   Clock,
 } from "lucide-react";
+import { TwitterShareCampaign } from "./TwitterShareButton";
 
 interface CampaignCardProps {
   id: string;
@@ -148,12 +149,42 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
               <Button variant="outline" className="rounded-full">
                 <Clock className="w-4 h-4" />
               </Button>
+              <TwitterShareCampaign
+                title={title}
+                description={description}
+                image={imageUrl}
+                variant="icon"
+                size="md"
+                className="rounded-full"
+                onSuccess={(response) => {
+                  console.log('Successfully shared campaign:', response);
+                }}
+                onError={(error) => {
+                  console.error('Failed to share campaign:', error);
+                }}
+              />
             </>
           )}
           {status === "completed" && (
-            <Button variant="outline" className="flex-1 rounded-full">
-              View Results
-            </Button>
+            <>
+              <Button variant="outline" className="flex-1 rounded-full">
+                View Results
+              </Button>
+              <TwitterShareCampaign
+                title={title}
+                description={`${description} - Campaign completed!`}
+                image={imageUrl}
+                variant="icon"
+                size="md"
+                className="rounded-full"
+                onSuccess={(response) => {
+                  console.log('Successfully shared completed campaign:', response);
+                }}
+                onError={(error) => {
+                  console.error('Failed to share completed campaign:', error);
+                }}
+              />
+            </>
           )}
         </div>
       </div>

@@ -8,6 +8,7 @@ import {
   Users,
   Award,
 } from "lucide-react";
+import { TwitterShareSocialPost } from "./TwitterShareButton";
 
 interface SocialPostProps {
   id: string;
@@ -117,6 +118,20 @@ const SocialPost: React.FC<SocialPostProps> = ({
             <DollarSign className="w-4 h-4" />
             <span>Cheer ${cheerAmount}</span>
           </Button>
+
+          <TwitterShareSocialPost
+            title={title}
+            description={description}
+            image={imageUrl}
+            variant="minimal"
+            size="sm"
+            onSuccess={(response) => {
+              console.log('Successfully shared social post:', response);
+            }}
+            onError={(error) => {
+              console.error('Failed to share social post:', error);
+            }}
+          />
         </div>
 
         <div className="flex items-center space-x-2 text-sm text-gray-500">

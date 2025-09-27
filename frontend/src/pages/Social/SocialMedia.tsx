@@ -12,6 +12,7 @@ import {
   PostImageViewer,
 } from "../../components/IPFSImageViewer";
 import { formatEther } from "../../utils/wallet";
+import { TwitterShareSocialPost } from "../../components/TwitterShareButton";
 
 export default function SocialMedia() {
   const navigate = useNavigate();
@@ -363,6 +364,21 @@ function PostCard({ post }: PostCardProps) {
             </svg>
             <span>Cheer</span>
           </button>
+
+          <TwitterShareSocialPost
+            title={post.title}
+            description={post.description}
+            image={post.ipfsHash}
+            variant="icon"
+            size="sm"
+            className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+            onSuccess={(response) => {
+              console.log('Successfully shared post:', response);
+            }}
+            onError={(error) => {
+              console.error('Failed to share post:', error);
+            }}
+          />
         </div>
 
         {/* Cheer Modal */}

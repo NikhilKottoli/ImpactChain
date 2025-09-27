@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bell, CreditCard, Map, Repeat, Search, Users, Target } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { WalletConnect } from "./WalletConnect";
+import { TwitterShareImpactChain } from "./TwitterShareButton";
 
 const navItems = [
   { icon: CreditCard, label: "Cards", path: "/cards" },
@@ -35,6 +36,18 @@ export default function Navbar() {
 
       {/* Right: Wallet & Profile */}
       <div className="flex items-center gap-2 bg-white px-2 py-2 rounded-full shadow-md z-[100]  fixed top-10 right-10">
+        <TwitterShareImpactChain
+          text="🌍✨ Discover ImpactChain - where social good meets Web3! Verify your impact, earn crypto rewards, and help light up the world! #ImpactChain #SocialGood #Web3"
+          variant="icon"
+          size="sm"
+          className="mr-1"
+          onSuccess={(response) => {
+            console.log('Successfully shared ImpactChain:', response);
+          }}
+          onError={(error) => {
+            console.error('Failed to share ImpactChain:', error);
+          }}
+        />
         <WalletConnect />
         <img
           src="https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg"

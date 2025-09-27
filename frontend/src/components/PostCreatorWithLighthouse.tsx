@@ -5,6 +5,7 @@ import { lighthouseUtils } from "../utils/lighthouse";
 import { Button } from "./ui/button";
 import { id } from "ethers";
 import { walletConnection } from "@/utils/wallet";
+import { TwitterShareSocialPost } from "./TwitterShareButton";
 const account = await walletConnection.getCurrentAccount();
 
 export const PostCreatorWithLighthouse: React.FC = () => {
@@ -383,19 +384,36 @@ export const PostCreatorWithLighthouse: React.FC = () => {
       {/* Success Display */}
       {success && (
         <div className="mt-4 p-4 bg-primary/10 border border-primary/20 text-primary rounded-lg">
-          <div className="flex items-center">
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="text-sm font-medium">{success}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="text-sm font-medium">{success}</span>
+            </div>
+            
+            {/* Twitter Share Button */}
+            <TwitterShareSocialPost
+              title={formData.title}
+              description={formData.description}
+              image={formData.imageFile}
+              variant="minimal"
+              size="sm"
+              onSuccess={(response) => {
+                console.log('Successfully shared new post:', response);
+              }}
+              onError={(error) => {
+                console.error('Failed to share new post:', error);
+              }}
+            />
           </div>
         </div>
       )}
