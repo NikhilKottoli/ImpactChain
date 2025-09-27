@@ -17,7 +17,7 @@ export default function Navbar() {
   const location = useLocation();
   const getActiveIndex = () => {
     const currentPath = location.pathname;
-    const index = navItems.findIndex(item => item.path === currentPath);
+    const index = navItems.findIndex((item) => item.path === currentPath);
     return index >= 0 ? index : 0;
   };
   const [active, setActive] = useState(getActiveIndex());

@@ -38,14 +38,8 @@ export default function Login() {
                 variant="outline"
                 className="w-full flex text-sm h-32 flex-col px-0 pr-4 cursor-pointer bg-black/10 rounded-xl hover:bg-[#f5f5f5]"
               >
-                <Button
-                  variant="outline"
-                  className="w-full flex text-sm h-32 flex-col px-0 pr-2 group-hover:pr-4 cursor-pointer bg-black/0 rounded-xl hover:bg-[#f5f5f5]"
-                >
-                  <Button
-                    variant="outline"
-                    className="w-full flex text-sm h-32 flex-col px-0 pr-4 relative p-2 cursor-pointer bg-[#f0f0f0] rounded-xl scale-105 translate-x-2"
-                  >
+                <div className="w-full flex text-sm h-32 flex-col px-0 pr-2 group-hover:pr-4 cursor-pointer bg-black/0 rounded-xl hover:bg-[#f5f5f5]">
+                  <div className="w-full flex text-sm h-32 flex-col px-0 pr-4 relative p-2 cursor-pointer bg-[#f0f0f0] rounded-xl scale-105 translate-x-2">
                     <div className="border border-dashed border-black/30 w-full h-full flex gap-4 justify-center items-center cursor-pointer rounded-lg">
                       <img
                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"
@@ -59,8 +53,8 @@ export default function Login() {
                         className="rotate-90 scale-[2] opacity-45 text-black"
                       />
                     </div>
-                  </Button>
-                </Button>
+                  </div>
+                </div>
               </Button>
             </div>
 
