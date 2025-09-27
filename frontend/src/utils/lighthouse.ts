@@ -12,7 +12,7 @@ const LIGHTHOUSE_CONFIG: LighthouseConfig = {
 };
 
 // Fallback gateway configuration
-const FALLBACK_GATEWAY = 'https://ipfs.io/ipfs/';
+const FALLBACK_GATEWAY = 'https://gateway.lighthouse.storage/ipfs/';
 
 export class LighthouseService {
   private apiKey: string;
