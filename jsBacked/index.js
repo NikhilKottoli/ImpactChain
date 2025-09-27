@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const postRoutes = require('./routes/posts');
 const userRoutes = require('./routes/users');
+const campaignRoutes = require('./routes/campaign');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,7 @@ app.use(cors());
 // Routes
 app.use('/posts', postRoutes);
 app.use('/users', userRoutes);
+app.use('/campaigns', campaignRoutes);
 
 app.get('/', (req, res) => {
   res.send('Supabase Backend Service is running! 🚀');
