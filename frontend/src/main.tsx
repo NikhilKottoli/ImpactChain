@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 
 import "./index.css";
 import Home from "./pages/home/Home";
@@ -11,6 +11,9 @@ import Cards from "./pages/Cards/Cards";
 import SocialMedia from "./pages/Social/SocialMedia";
 import CreatePost from "./pages/Social/CreatePost";
 import TestConfig from "./pages/Social/TestConfig";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import LandingPage from "./pages/LandingPage/LandingPage";
+import BgDynamic from "./components/BgDynamic";
 import CampaignPage from "./pages/Campaign/CampaignPage";
 import CreateCampaignForm from "./pages/Campaign/CreateCampaignForm";
 // import Home from "./pages/Home";
@@ -19,22 +22,50 @@ import CreateCampaignForm from "./pages/Campaign/CreateCampaignForm";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <div className="absolute inset-0 -z-10 h-full w-full bg-[#FBF3F0] [background:radial-gradient(125%_125%_at_50%_80%,#FBF3F0_40%,#26AFE0_100%)] ">
-        <Navbar />
+      <BgDynamic>
         <Routes>
-          <Route path="/" element={<App />}>
-            <Route index element={<Home />} />
-            <Route path="login" element={<Login />} />
-            <Route path="cards" element={<Cards />} />
-            <Route path="social" element={<SocialMedia />} />
-            <Route path="createpost" element={<CreatePost />} />
-            <Route path="testconfig" element={<TestConfig />} />
-            <Route path="campaign" element={<CampaignPage />} />
-            <Route path="create-campaign" element={<CreateCampaignForm />} />
-            {/* <Route path="about" element={<About />} /> */}
+          {/* Dashboard route (with Navbar) */}
+          <Route
+            path="/dashboard"
+            element={
+              <>
+                <Navbar />
+                <Dashboard />
+              </>
+            }
+          />
+
+          {/* Main app routes */}
+          <Route
+            path="/"
+            element={
+              <div className="w-full h-screen">
+                <Outlet />
+              </div>
+            }
+          >
+            {/* Index route (no Navbar) */}
+            <Route index element={<LandingPage />} />
+            {/* All other routes (with Navbar) */}
+            <Route
+              element={
+                <>
+                  <App />
+                  <Navbar />
+                </>
+              }
+            >
+              <Route path="login" element={<Login />} />
+              <Route path="cards" element={<Cards />} />
+              <Route path="social" element={<SocialMedia />} />
+              <Route path="createpost" element={<CreatePost />} />
+              <Route path="testconfig" element={<TestConfig />} />
+              <Route path="campaign" element={<CampaignPage />} />
+              <Route path="create-campaign" element={<CreateCampaignForm />} />
+            </Route>
           </Route>
         </Routes>
-      </div>
+      </BgDynamic>
     </BrowserRouter>
   </React.StrictMode>
 );
