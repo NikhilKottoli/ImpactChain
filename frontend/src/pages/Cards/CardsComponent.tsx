@@ -643,6 +643,7 @@ const SocialMediaCards: React.FC = () => {
                 />
               </svg>
             </button>
+
             <button
               onClick={() => topCardRef.current?.swipeRight()}
               disabled={cards.length === 0 || isLoading}
@@ -660,6 +661,31 @@ const SocialMediaCards: React.FC = () => {
                   strokeWidth={2}
                   d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
+              </svg>
+            </button>
+            <button
+              onClick={() => {
+                if (!cards.length) return;
+                const c = cards[0];
+                const baseText =
+                  (c.title ? c.title + " - " : "") +
+                  (c.description || c.caption || "");
+                const trimmed = baseText.slice(0, 200);
+                const postUrl = `${window.location.origin}/post/${
+                  c.tokenId ?? c.id
+                }`;
+                const tweet = `${trimmed} ${postUrl}`;
+                const shareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(
+                  tweet
+                )}`;
+                window.open(shareUrl, "_blank", "noopener,noreferrer");
+              }}
+              disabled={cards.length === 0 || isLoading}
+              aria-label="Share to X"
+              className="bg-card shadow-xl hover:bg-accent disabled:bg-muted text-card-foreground disabled:text-muted-foreground w-16 h-16 rounded-full border border-border transition-colors flex items-center justify-center"
+            >
+              <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2h3.308l-7.227 8.26L24 22h-6.563l-5.144-6.727L6.2 22H2.89l7.73-8.847L0 2h6.75l4.657 6.152L18.244 2zm-1.16 17.94h1.833L7.046 3.94H5.078l12.006 15.999z" />
               </svg>
             </button>
             <button
