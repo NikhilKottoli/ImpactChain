@@ -1,70 +1,373 @@
+<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/f368e47f-8d74-46e9-b8e5-a31e1bde5d7a" />
 
-the idea is that in this case what should happen is that
-this is a web3 app which is going to have a dao and also some attestation proof and some dataset which will be stored on ipfs (pribably lighthouse akave or something else in this case here)
-the app is for a social cause in this case wihch is going to be like users will post good campaigns and good work they did which is like 
-- i fed dogs today
-- i cleaned some river today etc
-the next features is going to be that
+# 🌍 ImpactChain - Web3 Social Impact Platform
 
-A user will be able to create a compagin which is as simple as like i ama goign to clean some river and the people will ben like volunteers for the same in this case
-so what should happen here in this case is that 
-later there is a boolean value here which connects the paid bounty or not 
-then people can rsvp here for the same with staking and rsvp 
+<div align="center">
 
-later on once the bounty is decided then the main part is that person paying the bounty decides which are some wallet address which will work as dao and vote in the case for verifying if the pesron actually visited or not and then attestation needs to be stored properly
+[Demo Link](https://app.supademo.com/demo/cmg2xdgpp01wk1y0i2v3vmaet?utm_source=link)
 
-along with that the events cqaptures like i want to fill a pothole
-i want to clean up a river
-this whole can be put on filecoing or some ipfs layer
+**Empowering Communities Through Blockchain-Verified Social Impact**
 
-the first feature is going to be tha tin this case
-- the user can create a social media post which is going to have basic features like the post, description 
-then on this basis an nft will be vcreated and stored on chain, there is going to be some metadata also going to be stored with this in this case for the same
-user and the user wallet and also goign to be the tweet the tweet photo
-in this feature the people can like it or something and along with that what should happen is that in this case 
-an extenral person can also come and cheer which is like paying the person in that particular tweet some amount just to show that they apprecitae
+[![Built with](https://img.shields.io/badge/Built%20with-React%20+%20TypeScript-blue)](https://reactjs.org/)
+[![Blockchain](https://img.shields.io/badge/Blockchain-World%20Chain-green)](https://worldcoin.org/)
+[![Storage](https://img.shields.io/badge/Storage-Filecoin%20+%20IPFS-orange)](https://filecoin.io/)
+[![Identity](https://img.shields.io/badge/Identity-ENS%20Domain-purple)](https://ens.domains/)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-the second features the most important one 
-- the person paying for the bounty decides some wallet addresses which are going to be acting as wallet address for voting if the pesron actually came or not with their private signatures (the idea is that so that the organization is not scammed for the same) then those people will be verified later on for the same 
-- so the thing for this table is going to be campaig id and side by side all the people who have rsvped and then the dao will vote for the privately attested using their keys
-- then once verified they will eligibly for that bounty 
-- this can be done with foreign key logic simply for the same
-- this attestation geneated with the private can be used as a proof of work to be stored on the ipfs layer for the same
+</div>
 
-the third features
-- some of the campgaisn may contain some data like dirty rivers or dity potholes which can be classied according to the fatures and can be put as datasets later on
-- this can be monitised for the govt for the same in this case
+## 🚀 Overview
 
-so the idea is help me fromalize this logic in depth
-help me with the db tables and relationships
-some depth functions for all 
+ImpactChain is a revolutionary Web3 social impact platform that combines social media, campaign management, and data monetization to create verified, blockchain-backed social good initiatives. Our platform enables users to document their social impact work, organize community campaigns with bounty rewards, and monetize collected impact data for governmental and organizational use.
 
-the main contracts are for nft generation, dao and the attestation service is also important
-we plan to have a paymaster setup for returning the stake amount properly 
-help me draft this in depth
+### 🌟 Key Features
 
+- **📱 Social Impact Posts**: Create NFT-backed posts of your social work with IPFS metadata storage
+- **🎯 Campaign Management**: Organize community events with bounty rewards and DAO verification
+- **🗳️ Decentralized Verification**: DAO-based attestation system for campaign participation
+- **💰 Economic Incentives**: Stake-based RSVP system with bounty rewards for verified participants
+- **📊 Data Monetization**: AI-labeled impact data sold as datasets to governments and organizations
+- **🎪 Cheer System**: Support impactful posts with cryptocurrency payments
+- **🏛️ ENS Integration**: Subdomain-based identity system for enhanced user experience
 
-### 1. Social Media Posts Flow
-- User creates post → NFT minted → Metadata stored on IPFS
-- Other users can like or cheer (pay) posts
+## 🏗️ Architecture
 
+### Core Components
 
-### 2. Campaign & Bounty Flow
-- Creator creates campaign (with/without bounty)
-- If bounty exists, funder assigns DAO voters
-- Users RSVP with stake amount
-- After event, DAO votes on attendance
-- Verified attendees get bounty, stakes returned
-- Unverified lose stake (goes to verified participants)
+```mermaid
+graph TB
+    A[Frontend React App] --> B[Smart Contracts]
+    A --> C[IPFS/Filecoin Storage]
+    A --> D[ENS Domains]
+    A --> E[Supabase Database]
+    
+    B --> F[Campaign Contract]
+    B --> G[Social Media Contract]
+    B --> H[DAO Contract]
+    
+    C --> I[Lighthouse Storage]
+    C --> J[Metadata Storage]
+    
+    E --> K[User Data]
+    E --> L[Campaign Data]
+    E --> M[Attestations]
+```
 
-### 3. Attestation Flow
-- DAO voters sign attendance verification
-- Signatures create attestation proof
-- Attestation stored on IPFS and referenced on-chain
-- Used for reputation and future campaign eligibility
+### Technology Stack
 
-### 4. Dataset Monetization
-- Campaign data (photos, measurements, locations) aggregated
-- Cleaned and categorized into datasets
-- Government/organizations purchase access
-- Revenue shared with data contributors
+#### 🔗 Blockchain & Web3
+- **World Chain**: Primary blockchain for smart contract deployment
+- **ENS Domains**: Decentralized identity and subdomain management
+- **Ethers.js**: Blockchain interaction library
+- **Wagmi**: React hooks for Ethereum
+
+#### 📁 Storage & Data
+- **Filecoin/IPFS**: Decentralized storage for media and metadata
+- **Lighthouse**: IPFS pinning and storage management
+- **Supabase**: Centralized database for app state and relationships
+
+#### 🎨 Frontend
+- **React 18 + TypeScript**: Modern React with type safety
+- **Vite**: Fast build tool and development server
+- **Tailwind CSS**: Utility-first CSS framework
+- **Framer Motion**: Animation library
+- **GSAP**: Advanced animations
+- **React Query**: Data fetching and caching
+
+#### 🔧 Development Tools
+- **ESLint**: Code linting
+- **TypeScript**: Type checking
+- **Zustand**: State management
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ and npm/yarn
+- Git
+- Wallet with World Chain testnet/mainnet access
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/NikhilKottoli/EthGlobal2025.git
+   cd EthGlobal2025
+   ```
+
+2. **Install dependencies**
+   ```bash
+   # Frontend
+   cd frontend
+   npm install
+   
+   # Backend services
+   cd ../jsBacked
+   npm install
+   
+   cd ../photo-pipeline
+   npm install
+   ```
+
+3. **Environment Setup**
+   
+   Create `.env` files in respective directories:
+   
+   **Frontend (.env)**
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_LIGHTHOUSE_API_KEY=your_lighthouse_api_key
+   VITE_PINATA_JWT=your_pinata_jwt
+   VITE_WORLD_CHAIN_RPC_URL=your_world_chain_rpc
+   VITE_CONTRACT_ADDRESS=deployed_contract_address
+   ```
+
+4. **Database Setup**
+   
+   Run the database schema from `frontend/docs/database-schema.md` in your Supabase instance.
+
+5. **Smart Contract Deployment**
+   ```bash
+   # Deploy contracts to World Chain
+   # See contracts/ directory for deployment scripts
+   ```
+
+6. **Start Development Servers**
+   ```bash
+   # Frontend
+   cd frontend && npm run dev
+   
+   # Backend services
+   cd jsBacked && npm start
+   cd photo-pipeline && npm start
+   ```
+
+## 📋 Core Workflows
+
+### 1. 📱 Social Media Posts Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as App
+    participant C as Contract
+    participant I as IPFS
+    participant D as Database
+    
+    U->>A: Create Post with Image
+    A->>I: Upload image to IPFS
+    I-->>A: Return IPFS hash
+    A->>C: Mint NFT with metadata
+    C-->>A: Return token ID
+    A->>D: Store post data
+    D-->>A: Confirmation
+    A-->>U: Post created successfully
+```
+
+**Features:**
+- Upload images and descriptions of social impact work
+- Automatic NFT minting with IPFS metadata
+- AI labeling for data categorization
+- Community engagement through likes and cheers
+- Cheer system allows monetary appreciation
+
+### 2. 🎯 Campaign & Bounty Flow
+
+```mermaid
+sequenceDiagram
+    participant C as Creator
+    participant F as Funder
+    participant P as Participant
+    participant D as DAO
+    participant SC as Smart Contract
+    
+    C->>SC: Create Campaign
+    F->>SC: Pay Bounty + Set DAO Voters
+    P->>SC: RSVP with Stake
+    SC-->>P: Stake Held in Escrow
+    Note over C,D: Event Happens
+    D->>SC: Vote on Attendance
+    SC->>SC: Process Attestations
+    SC->>P: Distribute Bounty + Return Stake
+```
+
+**Campaign Types:**
+- **Fundraiser Campaigns**: Community-funded initiatives
+- **Self-Funded Campaigns**: Creator-funded events
+
+**Staking Mechanism:**
+- Participants stake cryptocurrency to RSVP
+- Verified attendees receive stake back + bounty share
+- Unverified participants forfeit stake to verified pool
+
+### 3. 🗳️ Attestation Flow
+
+```mermaid
+sequenceDiagram
+    participant P as Participant
+    participant D as DAO Voters
+    participant A as Attestation System
+    participant I as IPFS
+    participant BC as Blockchain
+    
+    P->>A: Submit Attendance Proof
+    A->>D: Request Verification
+    D->>D: Multi-sig Voting Process
+    D->>A: Submit Signatures
+    A->>A: Generate Attestation Hash
+    A->>I: Store Proof on IPFS
+    A->>BC: Record On-Chain Reference
+    BC-->>P: Attestation Complete
+```
+
+**Verification Process:**
+- Campaign funder assigns trusted DAO voters
+- Voters independently verify attendance
+- Multi-signature attestation system
+- Cryptographic proof stored on IPFS
+- On-chain attestation reference for immutability
+
+### 4. 📊 Dataset Monetization
+
+```mermaid
+graph LR
+    A[Social Posts] --> B[AI Labeling]
+    C[Campaign Data] --> B
+    B --> D[Dataset Creation]
+    D --> E[Government Purchase]
+    E --> F[Revenue Distribution]
+    F --> G[Contributors]
+    F --> H[Platform]
+```
+
+**Monetization Strategy:**
+- Aggregate impact data from posts and campaigns
+- AI-powered labeling and categorization
+- Create purchasable datasets for:
+  - Government infrastructure planning
+  - NGO impact measurement
+  - Urban planning initiatives
+- Revenue sharing with data contributors
+
+## 🎨 User Interface
+
+### Key Pages & Components
+
+- **🏠 Landing Page**: Platform introduction and wallet connection
+- **📱 Social Feed**: Browse and interact with impact posts
+- **🎯 Campaign Hub**: Discover and join community campaigns
+- **📊 Dashboard**: Personal impact metrics and earnings
+- **👤 Profile Builder**: ENS-based profile management
+- **🏛️ DAO Interface**: Voting and attestation management
+
+### 🎪 ENS Integration
+
+- **Subdomain Creation**: Users can create personalized subdomains
+- **Identity Management**: ENS-based profile system
+- **Social Features**: Follow users via ENS names
+- **Campaign URLs**: Human-readable campaign addresses
+
+## 📜 Smart Contracts
+
+### Core Contracts
+
+#### 1. `CampaignBountyManager.sol`
+- **Purpose**: Campaign creation, bounty escrow, RSVP staking
+- **Key Functions**:
+  - `createCampaign()`: Initialize new campaigns
+  - `payBountyToEscrow()`: Fund campaigns with bounties
+  - `rsvpToCampaign()`: Stake-based participation
+  - `completeCampaign()`: Distribute rewards post-verification
+
+#### 2. `SocialMediaContract.sol`
+- **Purpose**: NFT minting for social posts
+- **Key Functions**:
+  - `mintPost()`: Create NFT for social impact posts
+  - `cheerPost()`: Monetary appreciation system
+
+#### 3. `DataDAO.sol`
+- **Purpose**: Decentralized verification and governance
+- **Key Functions**:
+  - `assignVoters()`: Set campaign verifiers
+  - `submitVote()`: Attendance verification voting
+  - `generateAttestation()`: Create cryptographic proofs
+
+### Contract Deployment
+
+Contracts are deployed on World Chain with the following addresses:
+- Campaign Manager: `0x...` (to be deployed)
+- Social Media: `0x...` (to be deployed)
+- DAO Contract: `0x...` (to be deployed)
+
+## 🗄️ Database Schema
+
+Our hybrid architecture uses both on-chain and off-chain storage:
+
+### Key Tables
+- **Users**: Profile data and reputation scores
+- **Social Posts**: Content metadata and engagement metrics
+- **Campaigns**: Event details and participation tracking
+- **Attestations**: Verification proofs and DAO voting records
+- **Datasets**: Monetized data packages and revenue tracking
+
+*Full schema available in `frontend/docs/database-schema.md`*
+
+## 🔒 Security & Privacy
+
+### Security Measures
+- **Smart Contract Auditing**: Comprehensive security reviews
+- **Multi-Signature Verification**: DAO-based attestation system
+- **Stake-Based Participation**: Economic incentives for honest behavior
+- **IPFS Content Addressing**: Immutable content storage
+
+### Privacy Considerations
+- **Pseudonymous Participation**: Wallet-based identity
+- **Optional Profile Information**: User-controlled data sharing
+- **Decentralized Storage**: No single point of failure
+- **ENS Privacy**: Optional identity revelation
+
+## 🤝 Contributing
+
+We welcome contributions to ImpactChain! Please follow these steps:
+
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Commit your changes**: `git commit -m 'Add amazing feature'`
+4. **Push to the branch**: `git push origin feature/amazing-feature`
+5. **Open a Pull Request**
+
+### Development Guidelines
+- Follow TypeScript best practices
+- Write comprehensive tests
+- Update documentation for new features
+- Follow the existing code style
+- Test smart contract changes thoroughly
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **World Chain** for providing scalable blockchain infrastructure
+- **ENS Domains** for decentralized identity solutions
+- **Filecoin/IPFS** for decentralized storage capabilities
+- **Lighthouse** for IPFS pinning services
+- **Supabase** for reliable database infrastructure
+
+## 📞 Contact & Support
+
+- **Project Repository**: [GitHub](https://github.com/NikhilKottoli/EthGlobal2025)
+- **Documentation**: [Project Docs](frontend/docs/)
+- **Issues**: [GitHub Issues](https://github.com/NikhilKottoli/EthGlobal2025/issues)
+
+---
+
+<div align="center">
+
+**🌍 Making Social Impact Verifiable, Sustainable, and Rewarding**
+
+Built with ❤️ for EthGlobal 2025
+
+</div>
