@@ -30,34 +30,20 @@ ImpactChain is a revolutionary Web3 social impact platform that combines social 
 - **🎪 Cheer System**: Support impactful posts with cryptocurrency payments
 - **🏛️ ENS Integration**: Subdomain-based identity system for enhanced user experience
 
-## 🏗️ Architecture
+
+
+
+
+
+### 🏗️ Architecture
+<img width="818" height="532" alt="Screenshot 2025-09-28 at 4 53 23 AM" src="https://github.com/user-attachments/assets/c4b9d35a-bac8-4322-9687-49b2b62a5d89" />
 
 ### Core Components
-
-```mermaid
-graph TB
-    A[Frontend React App] --> B[Smart Contracts]
-    A --> C[IPFS/Filecoin Storage]
-    A --> D[ENS Domains]
-    A --> E[Supabase Database]
-    
-    B --> F[Campaign Contract]
-    B --> G[Social Media Contract]
-    B --> H[DAO Contract]
-    
-    C --> I[Lighthouse Storage]
-    C --> J[Metadata Storage]
-    
-    E --> K[User Data]
-    E --> L[Campaign Data]
-    E --> M[Attestations]
-```
-
-### Technology Stack
-<img width="818" height="532" alt="Screenshot 2025-09-28 at 4 53 23 AM" src="https://github.com/user-attachments/assets/c4b9d35a-bac8-4322-9687-49b2b62a5d89" />
 <img width="1280" height="1214" alt="image" src="https://github.com/user-attachments/assets/ddf15468-f07c-4b05-8f5b-f423c0d9aedc" />
 
 
+
+### Technology Stack
 
 #### 🔗 Blockchain & Web3
 - **World Chain**: Primary blockchain for smart contract deployment
