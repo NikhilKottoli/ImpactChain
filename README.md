@@ -54,6 +54,10 @@ graph TB
 ```
 
 ### Technology Stack
+<img width="818" height="532" alt="Screenshot 2025-09-28 at 4 53 23 AM" src="https://github.com/user-attachments/assets/c4b9d35a-bac8-4322-9687-49b2b62a5d89" />
+<img width="1280" height="1214" alt="image" src="https://github.com/user-attachments/assets/ddf15468-f07c-4b05-8f5b-f423c0d9aedc" />
+
+
 
 #### 🔗 Blockchain & Web3
 - **World Chain**: Primary blockchain for smart contract deployment
@@ -363,6 +367,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Issues**: [GitHub Issues](https://github.com/NikhilKottoli/EthGlobal2025/issues)
 
 ---
+
+<img width="1470" height="831" alt="Screenshot 2025-09-28 at 6 59 43 AM" src="https://github.com/user-attachments/assets/5fe425da-cac9-4a2f-ab1f-abe9e70ad164" />
+<img width="1920" height="1080" alt="Screenshot From 2025-09-28 06-01-03" src="https://github.com/user-attachments/assets/7731e187-62d0-46b4-a566-ea3557c8962d" />
+<img width="1920" height="1080" alt="Screenshot From 2025-09-28 00-18-47" src="https://github.com/user-attachments/assets/687e7172-3c6b-44a5-aa2a-d971f667f587" />
+<img width="1920" height="1080" alt="Screenshot From 2025-09-28 06-51-16" src="https://github.com/user-attachments/assets/8ac673f2-b489-4043-92c7-f70ca9910da4" />
+<img width="1920" height="1080" alt="Screenshot From 2025-09-28 06-52-28" src="https://github.com/user-attachments/assets/f816b710-54c1-4b2c-96d0-295c38df82cb" />
+<img width="1920" height="1080" alt="Screenshot From 2025-09-28 00-15-12" src="https://github.com/user-attachments/assets/546f3212-a2af-412e-86f3-e747bf8c4995" />
+<img width="1449" height="749" alt="Screenshot 2025-09-28 at 7 28 53 AM" src="https://github.com/user-attachments/assets/46f59ee4-16a6-4dc4-9903-93adad8dc9ce" />
+<img width="1470" height="832" alt="Screenshot 2025-09-28 at 8 27 51 AM" src="https://github.com/user-attachments/assets/226d25f7-93ef-4540-a6aa-4ff8b6912ebf" />
+
+
+
+
+
+
 
 <div align="center">
 
