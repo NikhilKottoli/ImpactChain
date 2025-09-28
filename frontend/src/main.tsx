@@ -84,6 +84,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Route path="profile-builder" element={<ProfileBuilderPage />} />
               <Route path="social-features" element={<SocialFeaturesPage />} />
               <Route path="campaign-hub" element={<CampaignHubPage />} />
+              <Route path="campaign/:uuid" element={<CampaignFeed />} />
             </Route>
           </Route>
         </Routes>

@@ -567,7 +567,9 @@ export default function CampaignPage() {
                           )}
 
                         {/* General View Details Button */}
-                        <Button variant="outline" size="sm" className="w-full">
+                        <Button variant="outline" size="sm" className="w-full"
+                        onClick={() => navigate(`/campaign/${campaign.id}`)}
+                        >
                           View Details
                         </Button>
                       </div>

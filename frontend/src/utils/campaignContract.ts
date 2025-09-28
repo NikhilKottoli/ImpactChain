@@ -396,7 +396,7 @@ export async function getCampaign(campaignId: string): Promise<Campaign> {
       bountyAmount: campaignData.bountyAmount,
       bountyPayer: campaignData.bountyPayer,
       stakingAmount: campaignData.stakingAmount,
-      status: campaignData.status,
+      status: Number(campaignData.status), // Convert BigInt to number
       publicAddresses: campaignData.publicAddresses
     };
   } catch (error) {
@@ -466,7 +466,7 @@ export async function getCampaignStats(campaignId: string): Promise<{
       totalParticipants: Number(stats.totalParticipants),
       totalStaked: stats.totalStaked,
       bountyAmount: stats.bountyAmount,
-      status: stats.status
+      status: Number(stats.status) // Convert BigInt to number
     };
   } catch (error) {
     console.error('Error getting campaign stats:', error);
