@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Input from '@/components/Input';
 import { WalletConnect } from '@/components/WalletConnect';
+import { EnsProfile } from '@/components/EnsProfile';
 import { walletConnection } from '@/utils/wallet';
 import { 
   payBountyToEscrow, 
@@ -372,11 +373,14 @@ export default  function CampaignFeed() {
 
             <div className="space-y-3">
               {campaign.bountyPayer !== '0x0000000000000000000000000000000000000000' && (
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-gray-400">Bounty Payer:</span>
-                  <span className="text-white font-medium text-xs font-mono">
-                    {campaign.bountyPayer.slice(0, 6)}...{campaign.bountyPayer.slice(-4)}
-                  </span>
+                  <EnsProfile 
+                    address={campaign.bountyPayer as `0x${string}`}
+                    size="sm"
+                    showAddress={false}
+                    className="text-white"
+                  />
                 </div>
               )}
               
@@ -384,8 +388,13 @@ export default  function CampaignFeed() {
                 <div>
                   <span className="text-gray-400 block mb-2">Verifiers:</span>
                   {campaign.publicAddresses.map((addr, index) => (
-                    <div key={index} className="text-white font-medium text-xs font-mono">
-                      {addr.slice(0, 6)}...{addr.slice(-4)}
+                    <div key={index} className="mb-1">
+                      <EnsProfile 
+                        address={addr as `0x${string}`}
+                        size="sm"
+                        showAddress={false}
+                        className="text-white"
+                      />
                     </div>
                   ))}
                 </div>

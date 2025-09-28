@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { WalletConnect } from "../../components/WalletConnect";
+import { EnsProfile } from "../../components/EnsProfile";
 import {
   useWallet,
   usePosts,
@@ -328,9 +329,14 @@ function PostCard({ post }: PostCardProps) {
         </div>
 
         {/* Creator */}
-        <p className="text-xs text-gray-500 mb-3">
-          By: {post.creator.slice(0, 6)}...{post.creator.slice(-4)}
-        </p>
+        <div className="mb-3">
+          <p className="text-xs text-gray-500 mb-1">By:</p>
+          <EnsProfile 
+            address={post.creator as `0x${string}`}
+            size="sm"
+            showAddress={false}
+          />
+        </div>
 
         {/* Action Buttons */}
         <div className="flex space-x-2">
@@ -420,14 +426,12 @@ function ProfileSection({
     <div>
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-            {address.slice(2, 4).toUpperCase()}
-          </div>
+          <EnsProfile 
+            address={address as `0x${string}`}
+            size="lg"
+            showAddress={false}
+          />
           <div>
-            <h2 className="text-xl font-bold text-gray-800">My Profile</h2>
-            <p className="text-gray-600 font-mono text-sm">
-              {address.slice(0, 6)}...{address.slice(-4)}
-            </p>
             <p className="text-gray-500 text-sm">
               {userPosts.length} posts created
             </p>
