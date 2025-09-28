@@ -22,6 +22,10 @@ import CampaignFeed from "./pages/Campaign/CampaignFeed";
 import DAOHomepage from "./pages/DAO/DAOhomepage";
 import VotingPage from "./pages/DAO/Votingpage";
 import SearchPage from "./pages/Search/SearchPage";
+import SubdomainPage from "./pages/Subdomain/SubdomainPage";
+import ProfileBuilderPage from "./pages/ProfileBuilder/ProfileBuilderPage";
+import SocialFeaturesPage from "./pages/SocialFeatures/SocialFeaturesPage";
+import CampaignHubPage from "./pages/CampaignHub/CampaignHubPage";
 import { config } from "./lib/wagmi";
 // import Home from "./pages/Home";
 // import About from "./pages/About";
@@ -76,6 +80,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Route path="dao" element={<DAOHomepage />} />
               <Route path="voting/:uuid" element={<VotingPage />} />
               <Route path="search" element={<SearchPage />} />
+              <Route path="subdomains" element={<SubdomainPage />} />
+              <Route path="profile-builder" element={<ProfileBuilderPage />} />
+              <Route path="social-features" element={<SocialFeaturesPage />} />
+              <Route path="campaign-hub" element={<CampaignHubPage />} />
             </Route>
           </Route>
         </Routes>

@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { EnsProfile } from "@/components/EnsProfile";
 import {
   Camera,
   Calendar,
@@ -163,12 +164,13 @@ const Dashboard: React.FC = () => {
               </p>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                <Award className="w-5 h-5 text-white" />
-              </div>
+              <EnsProfile 
+                address={"0x742d35Cc6634C0532925a3b8D0C0C6" as `0x${string}`}
+                size="sm"
+                showAddress={false}
+              />
               <div>
                 <p className="text-sm font-medium text-gray-900">Connected</p>
-                <p className="text-xs text-gray-600">0x742d...C0C6</p>
               </div>
             </div>
           </div>
