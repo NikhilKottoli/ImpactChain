@@ -1,14 +1,11 @@
-import CardStackDemo from "./CardsComponent";
+import SocialMediaCards from "./CardsComponent";
 
-// In your component or App.tsx
-function App() {
+function Cards() {
   return (
-    <div className="w-full h-screen overflow-hidden">
-      <div className="scale-115">
-        <CardStackDemo />
-      </div>
+    <div className="w-full min-h-screen ">
+      <SocialMediaCards />
     </div>
   );
 }
 
-export default App;
+export default Cards;

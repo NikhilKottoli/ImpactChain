@@ -33,7 +33,7 @@ export default function LandingPage() {
         />
         <div className="absolute inset-0 z-10 h-full w-full bg-[#fbf3f000] [background:radial-gradient(125%_125%_at_50%_80%,#FBF3F000_40%,#26AFE0_100%)]"></div>
         <div className="absolute inset-0 flex flex-col items-center justify-center z-20 px-4">
-          <div className="relative pt-24 md:pt-120">
+          <div className="relative pt-100 lg:pt-120">
             <div className="mx-auto max-w-7xl px-6">
               <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
                 {/* Announcement banner */}
@@ -87,14 +87,27 @@ export default function LandingPage() {
 
             {/* Hero image */}
             <div className="relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-20">
-              <div className="relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-4 shadow-lg bg-white">
+              <div className="relative mx-auto max-w-10xl overflow-hidden rounded-2xl border p-4 shadow-lg bg-white">
                 <img
-                  className="aspect-[15/8] relative rounded-2xl w-full"
+                  className="aspect-[15/8] relative rounded-2xl w-full bg-amber-200"
                   src="/dashboard-preview.png"
                   alt="Platform dashboard preview"
                 />
+                <div
+                  className="bg-green-300 h-full absolute"
+                  style={{ aspectRatio: "9/16" }}
+                >
+                  {" "}
+                  <img
+                    src="/impact-preview.png"
+                    alt="Impact activity preview"
+                  />
+                </div>
               </div>
+
+             
             </div>
+            
           </div>
         </div>
       </div>
