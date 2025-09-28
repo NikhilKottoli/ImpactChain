@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Input from '@/components/Input';
 import { WalletConnect } from '@/components/WalletConnect';
@@ -19,27 +20,18 @@ import {
   type PayBountyParams,
   type RSVPParams
 } from '@/utils/campaignContract';
+import { createDAO, addUser, type CreateDAOParams, type AddUserParams } from '@/utils/daoContract';
 import { ethers } from 'ethers';
 
-const HARDCODED_CAMPAIGN = {
-  id: '9e415c57-616d-45c1-9f75-0731a77405fc',
-  creator: "0x62A3778475803D166C7213d2634e5927db51Ce30", // Replace with actual creator address
-  isFundraiser: true, // This means someone else needs to pay the bounty
-  bountyAmount: BigInt('100000000000000000'), // 0.1 ETH in wei
-  bountyPayer: '0x0000000000000000000000000000000000000000', // Will be set when bounty is paid
-  stakingAmount: BigInt('10000000000000000'), // 0.01 ETH in wei
-  status: CampaignStatus.BOUNTY_PAID, // Initially created, waiting for bounty
-  publicAddresses: [] // Will be populated when bounty is paid with verifiers
-};
-
-
-
-
-export default  function CampaignFeed() {
-
+export default function CampaignFeed() {
+  const { uuid } = useParams<{ uuid: string }>();
+  const navigate = useNavigate();
+  
   const [isConnected, setIsConnected] = useState(false);
   const [currentAccount, setCurrentAccount] = useState<string | null>(null);
-  const [campaign, setCampaign] = useState<Campaign & { id: string }>(HARDCODED_CAMPAIGN);
+  const [campaign, setCampaign] = useState<Campaign & { id: string } | null>(null);
+  const [isLoadingCampaign, setIsLoadingCampaign] = useState(true);
+  const [campaignError, setCampaignError] = useState<string | null>(null);
   
   // Bounty payment state
   const [bountyAmount, setBountyAmount] = useState('0.1');
@@ -48,6 +40,11 @@ export default  function CampaignFeed() {
   const [bountyError, setBountyError] = useState<string | null>(null);
   const [bountySuccess, setBountySuccess] = useState<string | null>(null);
 
+  // DAO creation state
+  const [isCreatingDAO, setIsCreatingDAO] = useState(false);
+  const [daoError, setDAOError] = useState<string | null>(null);
+  const [daoSuccess, setDAOSuccess] = useState<string | null>(null);
+
   // RSVP state
   const [stakeAmount, setStakeAmount] = useState('0.01');
   const [isRSVPing, setIsRSVPing] = useState(false);
@@ -55,6 +52,7 @@ export default  function CampaignFeed() {
   const [rsvpSuccess, setRSVPSuccess] = useState<string | null>(null);
   const [hasRSVPed, setHasRSVPed] = useState(false);
   const [userStake, setUserStake] = useState<bigint>(0n);
+  const [isAddingToDAO, setIsAddingToDAO] = useState(false);
 
   // Testing/Debug state
   const [campaignRSVPs, setCampaignRSVPs] = useState<RSVP[]>([]);
@@ -71,18 +69,22 @@ export default  function CampaignFeed() {
   }, []);
 
   useEffect(() => {
-    if (isConnected && currentAccount) {
+    if (uuid) {
+      loadCampaignData();
+    }
+  }, [uuid]);
+
+  useEffect(() => {
+    if (isConnected && currentAccount && campaign) {
       checkUserRSVPStatus();
       loadCampaignRSVPs();
     }
-  }, [isConnected, currentAccount, campaign.status]);
+  }, [isConnected, currentAccount, campaign?.status]);
 
   const checkConnection = async () => {
     try {
       const connected = await walletConnection.isConnected();
       setIsConnected(connected);
-      const newcampaignasd = await getCampaign("9e415c57-616d-45c1-9f75-0731a77405fc");
-      console.log(newcampaignasd);
 
       if (connected) {
         const account = await walletConnection.getCurrentAccount();
@@ -94,15 +96,43 @@ export default  function CampaignFeed() {
     }
   };
 
+  const loadCampaignData = async () => {
+    if (!uuid) {
+      setCampaignError('No campaign ID provided');
+      setIsLoadingCampaign(false);
+      return;
+    }
+
+    setIsLoadingCampaign(true);
+    setCampaignError(null);
+
+    try {
+      const campaignData = await getCampaign(uuid);
+      setCampaign({
+        ...campaignData,
+        id: uuid
+      });
+      console.log(campaignData);
+      
+      // Set default bounty amount from campaign data
+      setBountyAmount(ethers.formatEther(campaignData.bountyAmount));
+      setStakeAmount(ethers.formatEther(campaignData.stakingAmount));
+      
+    } catch (err) {
+      console.error('Error loading campaign:', err);
+      setCampaignError(err instanceof Error ? err.message : 'Failed to load campaign');
+    } finally {
+      setIsLoadingCampaign(false);
+    }
+  };
+
   const checkUserRSVPStatus = async () => {
-    if (!currentAccount) return;
+    if (!currentAccount || !campaign) return;
     
     try {
       const rsvpStatus = await hasUserRSVPed(campaign.id, currentAccount);
       setHasRSVPed(rsvpStatus);
       
-      
-
       if (rsvpStatus) {
         const stake = await getParticipantStake(campaign.id, currentAccount);
         setUserStake(stake);
@@ -113,6 +143,8 @@ export default  function CampaignFeed() {
   };
 
   const loadCampaignRSVPs = async () => {
+    if (!campaign) return;
+    
     setIsLoadingRSVPs(true);
     try {
       const rsvps = await getCampaignRSVPs(campaign.id);
@@ -130,6 +162,11 @@ export default  function CampaignFeed() {
     
     if (!isConnected) {
       setBountyError('Please connect your wallet first');
+      return;
+    }
+
+    if (!campaign) {
+      setBountyError('Campaign not loaded');
       return;
     }
 
@@ -155,8 +192,11 @@ export default  function CampaignFeed() {
     setIsPayingBounty(true);
     setBountyError(null);
     setBountySuccess(null);
+    setDAOError(null);
+    setDAOSuccess(null);
 
     try {
+      // Step 1: Pay bounty to escrow
       const params: PayBountyParams = {
         campaignId: campaign.id,
         verifiers: verifierAddresses,
@@ -164,19 +204,31 @@ export default  function CampaignFeed() {
       };
 
       const result = await payBountyToEscrow(params);
-      setBountySuccess(`Bounty paid successfully! Transaction: ${result.transactionHash}`);
+      
+      // Step 2: Create DAO with the same campaign ID and verifiers
+      setIsCreatingDAO(true);
+      const daoParams: CreateDAOParams = {
+        uuid: campaign.id,
+        verifiers: verifierAddresses
+      };
+
+      const daoResult = await createDAO(daoParams);
+      setIsCreatingDAO(false);
+
+      setBountySuccess(`Bounty paid and DAO created successfully! Bounty TX: ${result.transactionHash}... DAO TX: ${daoResult.transactionHash}`);
       
       // Update campaign status
       setCampaign(prev => ({
-        ...prev,
+        ...prev!,
         status: CampaignStatus.BOUNTY_PAID,
         bountyPayer: currentAccount!,
         publicAddresses: verifierAddresses
       }));
 
     } catch (err) {
-      console.error('Error paying bounty:', err);
-      setBountyError(err instanceof Error ? err.message : 'Failed to pay bounty');
+      console.error('Error paying bounty or creating DAO:', err);
+      setBountyError(err instanceof Error ? err.message : 'Failed to pay bounty or create DAO');
+      setIsCreatingDAO(false);
     } finally {
       setIsPayingBounty(false);
     }
@@ -190,6 +242,11 @@ export default  function CampaignFeed() {
       return;
     }
 
+    if (!campaign) {
+      setRSVPError('Campaign not loaded');
+      return;
+    }
+
     if (campaign.status !== CampaignStatus.BOUNTY_PAID) {
       setRSVPError('Campaign bounty must be paid before RSVPing');
       return;
@@ -200,18 +257,35 @@ export default  function CampaignFeed() {
       return;
     }
 
+    if (!currentAccount) {
+      setRSVPError('Wallet not connected');
+      return;
+    }
+
     setIsRSVPing(true);
     setRSVPError(null);
     setRSVPSuccess(null);
 
     try {
+      // Step 1: RSVP to campaign with stake
       const params: RSVPParams = {
         campaignId: campaign.id,
         stakeAmount: stakeAmount
       };
 
       const result = await rsvpToCampaign(params);
-      setRSVPSuccess(`RSVP successful! Transaction: ${result.transactionHash}`);
+      
+      // Step 2: Add user to the DAO
+      setIsAddingToDAO(true);
+      const addUserParams: AddUserParams = {
+        uuid: campaign.id,
+        userAddress: currentAccount
+      };
+
+      const daoResult = await addUser(addUserParams);
+      setIsAddingToDAO(false);
+
+      setRSVPSuccess(`RSVP successful and added to DAO! RSVP TX: ${result.transactionHash.slice(0, 10)}... DAO TX: ${daoResult.transactionHash.slice(0, 10)}...`);
       
       // Update RSVP status
       setHasRSVPed(true);
@@ -221,8 +295,9 @@ export default  function CampaignFeed() {
       await loadCampaignRSVPs();
 
     } catch (err) {
-      console.error('Error RSVPing:', err);
-      setRSVPError(err instanceof Error ? err.message : 'Failed to RSVP');
+      console.error('Error RSVPing or adding to DAO:', err);
+      setRSVPError(err instanceof Error ? err.message : 'Failed to RSVP or add to DAO');
+      setIsAddingToDAO(false);
     } finally {
       setIsRSVPing(false);
     }
@@ -241,7 +316,7 @@ export default  function CampaignFeed() {
     try {
       const result = await dummyDAO(campaign.id);
       console.log(result);
-      setDummyDAOSuccess(`Dummy DAO verification completed! Transaction: ${result.transactionHash}`);
+      setDummyDAOSuccess(`Transaction: ${result.transactionHash}`);
       
       // Reload RSVPs to see verification changes
       await loadCampaignRSVPs();
@@ -309,14 +384,45 @@ export default  function CampaignFeed() {
     }
   };
 
+  // Show loading state
+  if (isLoadingCampaign) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20 p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mr-3"></div>
+            <span className="text-white">Loading campaign...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (campaignError || !campaign) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20 p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8 p-6 bg-red-500/10 border border-red-500/20 rounded-2xl">
+            <h3 className="text-red-300 font-medium mb-2">Error Loading Campaign</h3>
+            <p className="text-red-200">{campaignError || 'Campaign not found'}</p>
+            <Button onClick={loadCampaignData} variant="outline" className="mt-4">
+              Retry
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Campaign Testing Feed</h1>
-            <p className="text-gray-400">Test campaign interactions and dummy DAO verification</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Campaign Details</h1>
+            <p className="text-gray-400">Manage campaign interactions and verification</p>
           </div>
           <WalletConnect />
         </div>
@@ -335,7 +441,7 @@ export default  function CampaignFeed() {
           <div className="flex justify-between items-start mb-6">
             <div>
               <h2 className="text-2xl font-semibold text-white mb-2">
-                Test {campaign.isFundraiser ? 'Fundraiser' : 'Sponsored'} Campaign
+                {campaign.isFundraiser ? 'Fundraiser' : 'Sponsored'} Campaign
               </h2>
               <p className="text-sm text-gray-400 font-mono mb-2">
                 ID: {campaign.id}
@@ -415,7 +521,7 @@ export default  function CampaignFeed() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Pay Bounty Section */}
             <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-              <h3 className="text-xl font-semibold text-white mb-4">Pay Bounty to Escrow</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Pay Bounty</h3>
               
               {campaign.status === CampaignStatus.CREATED ? (
                 <form onSubmit={handlePayBounty} className="space-y-4">
@@ -447,7 +553,7 @@ export default  function CampaignFeed() {
                       disabled={!isConnected || isPayingBounty}
                     />
                     <p className="text-xs text-gray-400 mt-1">
-                      Enter wallet addresses that can verify campaign completion
+                      Enter wallet addresses that can verify campaign completion and will be part of the DAO verifying presence of the RSVPed participants attesting proof of work by voting
                     </p>
                   </div>
 
@@ -471,10 +577,10 @@ export default  function CampaignFeed() {
                     {isPayingBounty ? (
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Paying Bounty...
+                        {isCreatingDAO ? 'Creating DAO...' : 'Paying Bounty...'}
                       </div>
                     ) : (
-                      'Pay Bounty to Escrow'
+                      'Pay Bounty & Create DAO'
                     )}
                   </Button>
                 </form>
@@ -482,7 +588,7 @@ export default  function CampaignFeed() {
                 <div className="text-center py-4">
                   <p className="text-gray-400">
                     {campaign.status === CampaignStatus.BOUNTY_PAID 
-                      ? 'Bounty has been paid!' 
+                      ? 'Bounty has been paid and DAO created!' 
                       : 'Campaign is completed'}
                   </p>
                 </div>
@@ -491,7 +597,7 @@ export default  function CampaignFeed() {
 
             {/* RSVP Section */}
             <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-              <h3 className="text-xl font-semibold text-white mb-4">RSVP to Campaign</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">RSVP & Join DAO</h3>
               
               {campaign.status === CampaignStatus.BOUNTY_PAID && !hasRSVPed ? (
                 <form onSubmit={handleRSVP} className="space-y-4">
@@ -534,10 +640,10 @@ export default  function CampaignFeed() {
                     {isRSVPing ? (
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        RSVPing...
+                        {isAddingToDAO ? 'Adding to DAO...' : 'RSVPing...'}
                       </div>
                     ) : (
-                      'RSVP with Stake'
+                      'RSVP & Join DAO'
                     )}
                   </Button>
                 </form>
@@ -547,13 +653,16 @@ export default  function CampaignFeed() {
                     {campaign.status === CampaignStatus.CREATED
                       ? 'Waiting for bounty to be paid'
                       : hasRSVPed
-                      ? 'You have already RSVPed!'
+                      ? 'You have already RSVPed and joined the DAO!'
                       : 'Campaign is completed'}
                   </p>
                   {hasRSVPed && (
                     <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
                       <p className="text-green-300 text-sm">
                         ✅ Your stake: {ethers.formatEther(userStake)} ETH
+                      </p>
+                      <p className="text-green-300 text-xs mt-1">
+                        You're now part of the DAO for verification
                       </p>
                     </div>
                   )}
@@ -562,45 +671,63 @@ export default  function CampaignFeed() {
             </div>
           </div>
 
-          {/* Testing/Debug Section */}
+          {/* Verification & Voting Section */}
           {campaign.status === CampaignStatus.BOUNTY_PAID && (
             <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-6">
-              <h3 className="text-xl font-semibold text-purple-300 mb-4">🧪 Testing & Debug Section</h3>
+              <h3 className="text-xl font-semibold text-purple-300 mb-4">🗳️ Verification & Voting</h3>
               
-              {/* Dummy DAO Section */}
-              <div className="mb-6">
-                <h4 className="text-lg font-medium text-white mb-3">Dummy DAO Verification</h4>
-                <p className="text-gray-400 text-sm mb-4">
-                  Test the verification process. This will mark every other participant as verified.
-                </p>
-                
-                {dummyDAOError && (
-                  <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                    <p className="text-red-300 text-sm">{dummyDAOError}</p>
-                  </div>
-                )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Go to Voting */}
+                <div>
+                  <h4 className="text-lg font-medium text-white mb-3">Participant Verification</h4>
+                  <p className="text-gray-400 text-sm mb-4">
+                    Go to the voting page to verify participants through the DAO system.
+                  </p>
+                  
+                  <Button
+                    onClick={() => navigate(`/voting/${campaign.id}`)}
+                    disabled={!isConnected}
+                    className="w-full mb-4"
+                  >
+                    Go to Voting Page
+                  </Button>
+                </div>
 
-                {dummyDAOSuccess && (
-                  <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <p className="text-green-300 text-sm">{dummyDAOSuccess}</p>
-                  </div>
-                )}
-
-                <Button
-                  onClick={handleDummyDAO}
-                  disabled={!isConnected || isDummyDAORunning}
-                  variant="outline"
-                  className="w-full mb-4"
-                >
-                  {isDummyDAORunning ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Running Dummy DAO...
+                {/* Dummy DAO for Demo */}
+                <div>
+                  <h4 className="text-lg font-medium text-white mb-3">Stop Voting: Final Step</h4>
+                  <p className="text-gray-400 text-sm mb-4">
+                    This will stop the voting in the DAO which was created according to the user who made the campaign.
+                  </p>
+                  
+                  {dummyDAOError && (
+                    <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                      <p className="text-red-300 text-sm">{dummyDAOError}</p>
                     </div>
-                  ) : (
-                    'Run Dummy DAO Verification'
                   )}
-                </Button>
+
+                  {dummyDAOSuccess && (
+                    <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <p className="text-green-300 text-sm">{dummyDAOSuccess}</p>
+                    </div>
+                  )}
+
+                  <Button
+                    onClick={handleDummyDAO}
+                    disabled={!isConnected || isDummyDAORunning}
+                    variant="outline"
+                    className="w-full mb-4"
+                  >
+                    {isDummyDAORunning ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Stopping and Calculating Results...
+                      </div>
+                    ) : (
+                      'Stop Voting'
+                    )}
+                  </Button>
+                </div>
               </div>
 
               {/* Complete Campaign Section */}
@@ -702,27 +829,27 @@ export default  function CampaignFeed() {
 
         {/* Instructions */}
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-          <h3 className="text-xl font-semibold text-white mb-4">Testing Instructions</h3>
+          <h3 className="text-xl font-semibold text-white mb-4">How It Works</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <h4 className="text-lg font-medium text-blue-300 mb-2">1. Pay Bounty</h4>
+              <h4 className="text-lg font-medium text-blue-300 mb-2">1. Pay Bounty & Create DAO</h4>
               <p className="text-gray-400 text-sm">
-                Pay the bounty into escrow and set verifier addresses. 
-                Use your own address as a verifier for testing.
+                Pay the bounty into escrow and automatically create a DAO with your specified verifiers. 
+                This enables decentralized verification of participants.
               </p>
             </div>
             <div>
-              <h4 className="text-lg font-medium text-purple-300 mb-2">2. RSVP Multiple Times</h4>
+              <h4 className="text-lg font-medium text-purple-300 mb-2">2. RSVP & Join DAO</h4>
               <p className="text-gray-400 text-sm">
-                Use different wallet accounts to RSVP and stake. 
-                You need multiple participants to test the verification.
+                Participants RSVP with their stake and are automatically added to the DAO as users. 
+                This allows them to be verified by the DAO verifiers.
               </p>
             </div>
             <div>
-              <h4 className="text-lg font-medium text-green-300 mb-2">3. Test Verification</h4>
+              <h4 className="text-lg font-medium text-green-300 mb-2">3. Verify & Complete</h4>
               <p className="text-gray-400 text-sm">
-                Use the Dummy DAO button to verify participants, 
-                then complete the campaign to see payouts.
+                Verifiers vote on participants through the DAO system. 
+                Once verified, complete the campaign to distribute rewards.
               </p>
             </div>
           </div>
