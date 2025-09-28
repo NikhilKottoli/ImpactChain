@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { PostCreatorWithLighthouse } from "../../components/PostCreatorWithLighthouse";
 import { SimpleCreatePost } from "../../components/SimpleCreatePost";
 import { WalletConnect } from "../../components/WalletConnect";
-import { useWallet } from "../../hooks/useContract";
+import { useWallet } from "../../hooks/useContract"; // 🛑 Re-imported useWallet
 import { Button } from "../../components/ui/button";
 
 export default function CreatePost() {
   const navigate = useNavigate();
-  const { isConnected } = useWallet();
-  const [hasLighthouseKey, setHasLighthouseKey] = useState(true); // Lighthouse has default key
+  // 🛑 Retrieve isConnected status
+  const { isConnected, connect, isLoading } = useWallet(); 
+  const [hasLighthouseKey, setHasLighthouseKey] = useState(true); 
 
   useEffect(() => {
     // Check if Lighthouse API key is configured (we have a default one)
@@ -18,6 +19,13 @@ export default function CreatePost() {
       "239777d2.c5fe3f8d06e34c27be7f7d5cf99f007d";
     setHasLighthouseKey(!!apiKey);
   }, []);
+
+  // --- Component Logic ---
+  
+  // Decide which post creation component to render based on the API key availability
+  const PostCreationForm = hasLighthouseKey 
+    ? PostCreatorWithLighthouse 
+    : SimpleCreatePost;
 
   return (
     <div className="min-h-screen pt-20 flex flex-col md:flex-row px-4 md:px-32">
@@ -88,40 +96,38 @@ export default function CreatePost() {
       {/* Right Column - scrollable, full width on mobile */}
       <div className="w-full md:w-1/2 md:ml-[50%] min-h-screen overflow-y-auto mt-6 md:mt-0">
         <div className="p-4 md:p-8">
-          {/* Wallet Connection Check */}
-          {!isConnected ? (
-            <div className="max-w-md mx-auto text-center py-8 md:py-12">
-              <div className="bg-card border border-border rounded-lg p-6 md:p-8 shadow-md">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-card-foreground mb-2">
-                  Connect Your Wallet
-                </h3>
-                <p className="text-muted-foreground mb-6">
-                  You need to connect your Web3 wallet to create posts on the
-                  blockchain
-                </p>
-                <WalletConnect />
-              </div>
-            </div>
-          ) : hasLighthouseKey ? (
-            <PostCreatorWithLighthouse />
-          ) : (
-            <SimpleCreatePost />
-          )}
+          
+          {/* 🛑 Always render the WalletConnect button at the top of the form area */}
+          <div className="max-w-md mx-auto mb-8">
+              <WalletConnect />
+          </div>
+
+          <div className="max-w-md mx-auto">
+            {/* 🛑 Display a connecting message if loading */}
+            {isLoading ? (
+                <p className="text-center text-gray-500">Initializing connection...</p>
+            ) : (
+                <>
+                    {/* 🛑 Render the selected form component */}
+                    <PostCreationForm />
+
+                    {/* 🛑 Display connection prompt below the form if disconnected */}
+                    {!isConnected && (
+                        <div className="mt-8 p-6 md:p-8 bg-card border border-border rounded-lg shadow-md text-center">
+                            <h3 className="text-lg font-semibold text-card-foreground mb-2">
+                                Transaction Blocked
+                            </h3>
+                            <p className="text-muted-foreground mb-4">
+                                You must connect your wallet to mint the NFT.
+                            </p>
+                            <Button onClick={connect}>
+                                Connect Wallet to Post
+                            </Button>
+                        </div>
+                    )}
+                </>
+            )}
+          </div>
         </div>
       </div>
 

@@ -20,7 +20,7 @@ export default function SocialMedia() {
   const [activeTab, setActiveTab] = useState<"feed" | "profile">("feed");
 
   return (
-    <div className=" pt-20">
+    <div className="h-[150%] pt-20">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">

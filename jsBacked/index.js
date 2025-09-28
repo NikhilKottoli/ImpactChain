@@ -6,12 +6,14 @@ const postRoutes = require('./routes/posts');
 const userRoutes = require('./routes/users');
 const campaignRoutes = require('./routes/campaign');
 
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
 app.use(cors());
+
 // Routes
 app.use('/posts', postRoutes);
 app.use('/users', userRoutes);

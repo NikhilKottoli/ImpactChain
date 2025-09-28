@@ -1,21 +1,21 @@
-import { ethers, Contract } from 'ethers';
+import { ethers, Contract, BrowserProvider, JsonRpcProvider } from 'ethers'; // 🛑 ADD BrowserProvider, JsonRpcProvider
 import { walletConnection } from './wallet';
 import contractABI from '../contracts/abi.json';
 import type { Post, Interaction, CreatePostParams, ContractConfig } from '../types/contract';
 
-// Contract configuration for Sepolia testnet
+// Contract configuration (unchanged)
 export const CONTRACT_CONFIG: ContractConfig = {
-  address: '0x105478CB653F4f26142c9b8daF55f56c97357A89', // Your contract address
-  ownerAddress: '0x42bB782189817C7aA9c7a8C1BaeDf194c9d73f6e', // Your owner address
+  address: '0x585c92d25283e7FFEEBc14935d0f95B114BfD840', // Your contract address
+  ownerAddress: '0x623505d675c9FD4B0579Ee666CC6bC9660ced109', // Your owner address
   minCheerAmount: ethers.parseEther('0.01') // 0.01 ETH
 };
 
-// Sepolia testnet configuration
-export const SEPOLIA_CONFIG = {
-  chainId: '0xaa36a7', // 11155111 in hex
-  chainName: 'Sepolia',
-  rpcUrls: ['https://sepolia.infura.io/v3/'],
-  blockExplorerUrls: ['https://sepolia.etherscan.io'],
+// 🛑 Updated World Chain configuration (using recommended values for World Chain)
+export const WORLD_CHAIN_CONFIG = {
+  chainId: '0x672', // 1650 in decimal (World Chain Mainnet)
+  chainName: 'World Chain',
+  rpcUrls: ['https://mainnet.rpc.worldcoin.org'],
+  blockExplorerUrls: ['https://explorer.worldcoin.org'],
   nativeCurrency: {
     name: 'ETH',
     symbol: 'ETH',
@@ -25,7 +25,8 @@ export const SEPOLIA_CONFIG = {
 
 export class SocialMediaContract {
   private contract: Contract | null = null;
-  private provider: ethers.BrowserProvider | null = null;
+  // Provider type updated to handle both Browser and JsonRpc
+  private provider: ethers.Provider | null = null; 
 
   // Initialize contract with provider
   async initialize(): Promise<void> {
@@ -34,8 +35,13 @@ export class SocialMediaContract {
       throw new Error('Wallet not connected');
     }
 
-    // Check and switch to Sepolia if needed
-    await this.ensureSepoliaNetwork();
+    // 🛑 CRITICAL FIX: Conditionally run network switch logic
+    if (this.provider instanceof BrowserProvider) {
+      console.log("Browser wallet detected. Checking network...");
+      await this.ensureWorldChainNetwork(); // 🛑 CALL NEW FUNCTION
+    } else {
+      console.log("RPC wallet detected. Skipping network check.");
+    }
 
     const signer = await walletConnection.getSigner();
     if (!signer) {
@@ -45,30 +51,32 @@ export class SocialMediaContract {
     this.contract = new Contract(CONTRACT_CONFIG.address, contractABI, signer);
   }
 
-  // Ensure we're on Sepolia testnet
-  async ensureSepoliaNetwork(): Promise<void> {
-    if (!this.provider) {
-      throw new Error('Provider not initialized');
+  // 🛑 NEW FUNCTION: Check and switch to World Chain (replaces ensureSepoliaNetwork)
+  async ensureWorldChainNetwork(): Promise<void> {
+    // Only call this function when this.provider is guaranteed to be BrowserProvider
+    if (!(this.provider instanceof BrowserProvider)) {
+         throw new Error('Internal Error: ensureWorldChainNetwork called with non-BrowserProvider.');
     }
-
+    
     try {
       const network = await this.provider.getNetwork();
-      const sepoliaChainId = parseInt(SEPOLIA_CONFIG.chainId, 16);
+      const targetChainId = parseInt(WORLD_CHAIN_CONFIG.chainId, 16);
+      const targetBigInt = BigInt(targetChainId);
 
-      if (network.chainId !== BigInt(sepoliaChainId)) {
+      if (network.chainId !== targetBigInt) {
         console.log(`Current network: ${network.name} (${network.chainId})`);
-        console.log(`Switching to Sepolia (${sepoliaChainId})...`);
+        console.log(`Switching to ${WORLD_CHAIN_CONFIG.chainName} (${targetChainId})...`);
         
-        await this.switchToSepolia();
+        await this.switchToWorldChain(); // 🛑 CALL NEW FUNCTION
         
         // Verify the switch
         const newNetwork = await this.provider.getNetwork();
-        if (newNetwork.chainId !== BigInt(sepoliaChainId)) {
-          throw new Error('Failed to switch to Sepolia network');
+        if (newNetwork.chainId !== targetBigInt) {
+          throw new Error(`Failed to switch to ${WORLD_CHAIN_CONFIG.chainName} network`);
         }
-        console.log('Successfully switched to Sepolia testnet');
+        console.log(`Successfully switched to ${WORLD_CHAIN_CONFIG.chainName}`);
       } else {
-        console.log('Already on Sepolia testnet');
+        console.log(`Already on ${WORLD_CHAIN_CONFIG.chainName}`);
       }
     } catch (error) {
       console.error('Network check failed:', error);
@@ -76,16 +84,16 @@ export class SocialMediaContract {
     }
   }
 
-  // Switch to Sepolia testnet
-  async switchToSepolia(): Promise<void> {
+  // 🛑 NEW FUNCTION: Switch to World Chain (replaces switchToSepolia)
+  async switchToWorldChain(): Promise<void> {
     if (!window.ethereum) {
-      throw new Error('MetaMask not found');
+      throw new Error('Wallet not found for chain switch');
     }
 
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: SEPOLIA_CONFIG.chainId }],
+        params: [{ chainId: WORLD_CHAIN_CONFIG.chainId }],
       });
     } catch (error: any) {
       // If network doesn't exist, add it
@@ -93,16 +101,20 @@ export class SocialMediaContract {
         try {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
-            params: [SEPOLIA_CONFIG],
+            params: [WORLD_CHAIN_CONFIG], // Pass the full config object
           });
         } catch (addError) {
-          throw new Error('Failed to add Sepolia network to MetaMask');
+          throw new Error(`Failed to add ${WORLD_CHAIN_CONFIG.chainName} network to wallet`);
         }
       } else {
-        throw new Error(`Failed to switch to Sepolia: ${error.message}`);
+        throw new Error(`Failed to switch to ${WORLD_CHAIN_CONFIG.chainName}: ${error.message}`);
       }
     }
   }
+
+  // 🛑 REMOVED old ensureSepoliaNetwork and switchToSepolia functions.
+  // The rest of the class methods are unchanged as they correctly use the
+  // already initialized this.contract or this.provider/walletConnection.getSigner().
 
   // Get contract instance (read-only with provider)
   getReadOnlyContract(): Contract {

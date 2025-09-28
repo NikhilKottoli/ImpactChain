@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Input from '@/components/Input';
-import { WalletConnect } from '@/components/WalletConnect';
-import { walletConnection } from '@/utils/wallet';
+import { useWallet } from "../../hooks/useContract";
 import { createCampaign, type CreateCampaignParams, CAMPAIGN_CONTRACT_CONFIG } from '@/utils/campaignContract';
 import { ethers } from 'ethers';
 import { useLighthouseUpload } from '../../hooks/useLighthouse';
@@ -23,7 +22,6 @@ interface Web2FormData {
   imageFile: File | null; 
 }
 
-// Combined interface for component state
 interface CampaignFormData extends Web3FormData, Web2FormData {}
 
 export default function CampaignPageForm() {
@@ -41,7 +39,6 @@ export default function CampaignPageForm() {
     bountyAmount: '',
     stakingAmount: '',
     bountyPayer: '',
-    // Web2 fields
     title: '',
     description: '',
     location_name: '',
@@ -53,25 +50,9 @@ export default function CampaignPageForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
   const [uploadedHashes, setUploadedHashes] = useState<{ imageHash: string, metadataHash: string } | null>(null);
-
-  let imageHash: string | undefined;
-  let metadataHash: string | undefined;
-
-  React.useEffect(() => {
-    checkConnection();
-  }, []);
-
-  const checkConnection = async () => {
-    try {
-      const connected = await walletConnection.isConnected();
-      setIsConnected(connected);
-    } catch (err) {
-      setIsConnected(false);
-    }
-  };
-
+  
+  const { isConnected, connect } = useWallet(); 
   const handleInputChange = (field: keyof CampaignFormData, value: string | boolean | File | null) => {
     setFormData(prev => ({
       ...prev,
@@ -131,9 +112,8 @@ export default function CampaignPageForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isConnected) {
-      setError('Please connect your wallet first');
-      return;
+    if (!connect) {
+      await connect();
     }
 
     const validationError = validateForm();
@@ -145,10 +125,11 @@ export default function CampaignPageForm() {
     setIsLoading(true);
     setError(null);
     setSuccess(null);
-    let metadataHash: string | undefined;
+    
+    let ipfsImageHash: string | undefined;
+    let ipfsMetadataHash: string | undefined;
 
     try {
-      const currentAccount = await walletConnection.getCurrentAccount();
       
       const uploadResult = await uploadCompletePost(
         formData.imageFile,
@@ -159,27 +140,25 @@ export default function CampaignPageForm() {
           { trait_type: 'Platform', value: 'Social Impact Platform' },
           { trait_type: 'Storage', value: 'Lighthouse' },
           { trait_type: 'Created', value: new Date().toISOString() }
-        ],
-        (imgH, metaH) => {
-          imageHash = imgH;
-          metadataHash = metaH;
-          setUploadedHashes({ imageHash: imgH, metadataHash: metaH });
-        }
+        ]
       );
 
-      if (!uploadResult?.success || !uploadResult.metadataHash) {
-        throw new Error(uploadResult?.error || 'Failed to upload to IPFS');
+      if (!uploadResult?.success || !uploadResult.metadataHash || !uploadResult.imageHash) {
+        throw new Error(uploadResult?.error || 'Failed to upload to IPFS. Missing hash.');
       }
       
-      metadataHash = uploadResult.metadataHash;
+      ipfsImageHash = uploadResult.imageHash;
+      ipfsMetadataHash = uploadResult.metadataHash;
+
       const web3Params: CreateCampaignParams = {
         isFundraiser: formData.isFundraiser,
         bountyAmount: formData.bountyAmount,
         stakingAmount: formData.stakingAmount,
-        bountyPayer: formData.isFundraiser ? currentAccount! : formData.bountyPayer
+        bountyPayer: formData.isFundraiser ? "0x0000000000000000000000000000000000000000" : formData.bountyPayer
       };
 
       const web3Result = await createCampaign(web3Params);
+      
       const postData = {
         id: web3Result.campaignId,
         creator_id: currentAccount,
@@ -196,7 +175,7 @@ export default function CampaignPageForm() {
         bounty_amount: ethers.parseEther(formData.bountyAmount).toString(),
         paymaster_id: web3Params.bountyPayer,
         campaign_status: 'ACTIVE',
-        ipfs_hash: imageHash,
+        ipfs_hash: ipfsImageHash,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -218,7 +197,6 @@ export default function CampaignPageForm() {
 
       setSuccess(`Campaign created successfully! Campaign ID: ${web3Result.campaignId} (DB record created)`);
 
-      // Reset form
       setFormData({
         isFundraiser: false,
         bountyAmount: '',
@@ -232,7 +210,7 @@ export default function CampaignPageForm() {
         max_participants: '0',
         imageFile: null,
       });
-      setUploadedHashes(null);
+      setUploadedHashes({ imageHash: ipfsImageHash, metadataHash: ipfsMetadataHash });
 
     } catch (err) {
       console.error('Error creating campaign or posting to DB:', err);
@@ -249,12 +227,7 @@ export default function CampaignPageForm() {
         <p className="text-gray-400">Define your campaign details and set the web3 parameters.</p>
       </div>
 
-      {/* Wallet Connection */}
-      <div className="mb-6">
-        <WalletConnect />
-      </div>
-
-      {!isConnected && (
+      {!connect && (
         <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
           <p className="text-yellow-300 text-sm">Please connect your wallet to create a campaign</p>
         </div>
@@ -263,7 +236,6 @@ export default function CampaignPageForm() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <h3 className="text-xl text-white pt-4">Campaign Details (Web2)</h3>
 
-        {/* Title */}
         <div>
           <label htmlFor="title" className="block text-white font-medium mb-2">
             Campaign Title
@@ -274,11 +246,10 @@ export default function CampaignPageForm() {
             placeholder="e.g., Beach Cleanup in Bali"
             value={formData.title}
             onChange={(e) => handleInputChange('title', e.target.value)}
-            disabled={!isConnected}
+            disabled={!connect}
           />
         </div>
 
-        {/* Description */}
         <div>
           <label htmlFor="description" className="block text-white font-medium mb-2">
             Description
@@ -290,11 +261,10 @@ export default function CampaignPageForm() {
             placeholder="A detailed description of the campaign..."
             value={formData.description}
             onChange={(e) => handleInputChange('description', e.target.value)}
-            disabled={!isConnected}
+            disabled={!connect}
           />
         </div>
         
-        {/* Image File Input */}
         <div>
             <label htmlFor="imageFile" className="block text-white font-medium mb-2">
                 Campaign Image (Max 50MB)
@@ -304,7 +274,7 @@ export default function CampaignPageForm() {
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
-                disabled={!isConnected}
+                disabled={!connect}
                 className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-500 file:text-white hover:file:bg-purple-600"
             />
             {formData.imageFile && (
@@ -312,7 +282,6 @@ export default function CampaignPageForm() {
             )}
         </div>
 
-        {/* Location Name */}
         <div>
           <label htmlFor="location_name" className="block text-white font-medium mb-2">
             Location Name
@@ -323,12 +292,11 @@ export default function CampaignPageForm() {
             placeholder="e.g., Kuta Beach, Bali"
             value={formData.location_name}
             onChange={(e) => handleInputChange('location_name', e.target.value)}
-            disabled={!isConnected}
+            disabled={!connect}
           />
         </div>
 
         <div className="flex gap-4">
-            {/* Category */}
             <div className="flex-1">
             <label htmlFor="category" className="block text-white font-medium mb-2">
                 Category
@@ -339,11 +307,10 @@ export default function CampaignPageForm() {
                 placeholder="e.g., Environmental"
                 value={formData.category}
                 onChange={(e) => handleInputChange('category', e.target.value)}
-                disabled={!isConnected}
+                disabled={!connect}
             />
             </div>
 
-            {/* Max Participants */}
             <div className="flex-1">
             <label htmlFor="max_participants" className="block text-white font-medium mb-2">
                 Max Participants
@@ -354,12 +321,11 @@ export default function CampaignPageForm() {
                 placeholder="e.g., 50"
                 value={formData.max_participants}
                 onChange={(e) => handleInputChange('max_participants', e.target.value)}
-                disabled={!isConnected}
+                disabled={!connect}
             />
             </div>
         </div>
 
-        {/* Event Date */}
         <div>
           <label htmlFor="event_date" className="block text-white font-medium mb-2">
             Event Date
@@ -369,18 +335,14 @@ export default function CampaignPageForm() {
             type="date"
             value={formData.event_date}
             onChange={(e) => handleInputChange('event_date', e.target.value)}
-            disabled={!isConnected}
+            disabled={!connect}
           />
         </div>
         
         <hr className="border-t border-white/10" />
 
-        {/* ========================================================= */}
-        {/* START: WEB3 / CONTRACT FIELDS */}
-        {/* ========================================================= */}
         <h3 className="text-xl text-white pt-4">Contract Parameters (Web3)</h3>
 
-        {/* Campaign Type */}
         <div>
           <label className="block text-white font-medium mb-3">Campaign Type</label>
           <div className="flex gap-4">
@@ -407,7 +369,6 @@ export default function CampaignPageForm() {
           </div>
         </div>
 
-        {/* Bounty Amount */}
         <div>
           <label htmlFor="bountyAmount" className="block text-white font-medium mb-2">
             Bounty Amount (ETH)
@@ -419,11 +380,10 @@ export default function CampaignPageForm() {
             placeholder={`Min: ${ethers.formatEther(CAMPAIGN_CONTRACT_CONFIG.minBountyAmount)} ETH`}
             value={formData.bountyAmount}
             onChange={(e) => handleInputChange('bountyAmount', e.target.value)}
-            disabled={!isConnected}
+            disabled={!connect}
           />
         </div>
 
-        {/* Staking Amount */}
         <div>
           <label htmlFor="stakingAmount" className="block text-white font-medium mb-2">
             Staking Amount (ETH)
@@ -435,11 +395,10 @@ export default function CampaignPageForm() {
             placeholder={`Min: ${ethers.formatEther(CAMPAIGN_CONTRACT_CONFIG.minStakeAmount)} ETH`}
             value={formData.stakingAmount}
             onChange={(e) => handleInputChange('stakingAmount', e.target.value)}
-            disabled={!isConnected}
+            disabled={!connect}
           />
         </div>
 
-        {/* Bounty Payer (only for non-fundraiser campaigns) */}
         {!formData.isFundraiser && (
           <div>
             <label htmlFor="bountyPayer" className="block text-white font-medium mb-2">
@@ -451,24 +410,18 @@ export default function CampaignPageForm() {
               placeholder="0x..."
               value={formData.bountyPayer}
               onChange={(e) => handleInputChange('bountyPayer', e.target.value)}
-              disabled={!isConnected}
+              disabled={!connect}
             />
           </div>
         )}
         
-        {/* ========================================================= */}
-        {/* END: WEB3 / CONTRACT FIELDS */}
-        {/* ========================================================= */}
 
-
-        {/* Error Message */}
         {error && (
           <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
             <p className="text-red-300 text-sm">{error}</p>
           </div>
         )}
 
-        {/* Success Message */}
         {success && (
           <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
             <p className="text-green-300 text-sm">{success}</p>
@@ -478,10 +431,9 @@ export default function CampaignPageForm() {
           </div>
         )}
 
-        {/* Submit Button */}
         <Button
           type="submit"
-          disabled={!isConnected || isLoading}
+          disabled={!connect || isLoading}
           className="w-full py-4 rounded-xl font-semibold"
         >
           {isLoading ? (
@@ -497,7 +449,6 @@ export default function CampaignPageForm() {
       
       <hr className="border-t border-white/10 mt-6" />
 
-      {/* Info */}
       <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
         <h4 className="text-blue-300 font-medium mb-2">Campaign Types:</h4>
         <ul className="text-blue-200 text-sm space-y-1">

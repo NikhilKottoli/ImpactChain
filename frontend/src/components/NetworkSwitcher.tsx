@@ -1,5 +1,8 @@
+// NetworkSwitcher.tsx
+
 import React, { useState } from 'react';
-import { SEPOLIA_CONFIG } from '../utils/contract';
+// 🛑 IMPORTANT: Assuming this file now exports WORLD_CHAIN_CONFIG
+import { WORLD_CHAIN_CONFIG } from '../utils/contract'; 
 
 interface NetworkSwitcherProps {
   onNetworkSwitch?: () => void;
@@ -8,8 +11,9 @@ interface NetworkSwitcherProps {
 export const NetworkSwitcher: React.FC<NetworkSwitcherProps> = ({ onNetworkSwitch }) => {
   const [isSwitching, setIsSwitching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const targetChainName = WORLD_CHAIN_CONFIG.chainName; // "World Chain"
 
-  const switchToSepolia = async () => {
+  const switchToWorldChain = async () => {
     setIsSwitching(true);
     setError(null);
 
@@ -18,10 +22,10 @@ export const NetworkSwitcher: React.FC<NetworkSwitcherProps> = ({ onNetworkSwitc
         throw new Error('MetaMask not found');
       }
 
-      // Try to switch to Sepolia
+      // Try to switch to World Chain
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: SEPOLIA_CONFIG.chainId }],
+        params: [{ chainId: WORLD_CHAIN_CONFIG.chainId }],
       });
 
       onNetworkSwitch?.();
@@ -31,14 +35,17 @@ export const NetworkSwitcher: React.FC<NetworkSwitcherProps> = ({ onNetworkSwitc
         try {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
-            params: [SEPOLIA_CONFIG],
+            // 🛑 Use the complete WORLD_CHAIN_CONFIG object here
+            params: [WORLD_CHAIN_CONFIG], 
           });
           onNetworkSwitch?.();
         } catch (addError) {
-          setError('Failed to add Sepolia network to MetaMask');
+          // 🛑 Updated error message
+          setError(`Failed to add ${targetChainName} network to wallet.`);
         }
       } else {
-        setError(`Failed to switch to Sepolia: ${error.message}`);
+        // 🛑 Updated error message
+        setError(`Failed to switch to ${targetChainName}: ${error.message}`);
       }
     } finally {
       setIsSwitching(false);
@@ -49,15 +56,17 @@ export const NetworkSwitcher: React.FC<NetworkSwitcherProps> = ({ onNetworkSwitc
     <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
       <h3 className="text-sm font-medium text-blue-900 mb-2">🌐 Network Configuration</h3>
       <p className="text-xs text-blue-800 mb-3">
-        This app requires Sepolia testnet for contract interactions. Make sure you're connected to Sepolia.
+        {/* 🛑 Updated text */}
+        This app requires the **{targetChainName}** network for contract interactions.
       </p>
       
       <button
-        onClick={switchToSepolia}
+        onClick={switchToWorldChain} // 🛑 Updated function call
         disabled={isSwitching}
         className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg transition-colors text-sm"
       >
-        {isSwitching ? 'Switching...' : 'Switch to Sepolia Testnet'}
+        {/* 🛑 Updated text */}
+        {isSwitching ? 'Switching...' : `Switch to ${targetChainName}`}
       </button>
 
       {error && (
@@ -67,10 +76,11 @@ export const NetworkSwitcher: React.FC<NetworkSwitcherProps> = ({ onNetworkSwitc
       )}
 
       <div className="mt-3 text-xs text-blue-700">
-        <p><strong>Sepolia Details:</strong></p>
-        <p>• Chain ID: 11155111</p>
-        <p>• RPC: https://sepolia.infura.io/v3/</p>
-        <p>• Explorer: https://sepolia.etherscan.io</p>
+        <p><strong>{targetChainName} Details:</strong></p>
+        {/* 🛑 Updated details to pull from the config object */}
+        <p>• Chain ID: {parseInt(WORLD_CHAIN_CONFIG.chainId, 16)}</p>
+        <p>• RPC: {WORLD_CHAIN_CONFIG.rpcUrls[0]}</p>
+        <p>• Explorer: {WORLD_CHAIN_CONFIG.blockExplorerUrls[0]}</p>
       </div>
     </div>
   );

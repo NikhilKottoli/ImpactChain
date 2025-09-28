@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { WalletConnect } from '@/components/WalletConnect';
-import { walletConnection } from '@/utils/wallet';
+import { useWallet } from "../../hooks/useContract";
+
 import { 
   getUserCampaigns, 
   getCampaign, 
@@ -24,39 +24,16 @@ export default function CampaignPage() {
   const [campaigns, setCampaigns] = useState<CampaignWithStats[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+    const { isConnected, connect } = useWallet(); 
   const [showForm, setShowForm] = useState(false);
   const [currentAccount, setCurrentAccount] = useState<string | null>(null);
+  
   
   // Payout states
   const [processingPayouts, setProcessingPayouts] = useState<Set<string>>(new Set());
   const [payoutErrors, setPayoutErrors] = useState<Map<string, string>>(new Map());
   const [payoutSuccess, setPayoutSuccess] = useState<Map<string, string>>(new Map());
 
-  useEffect(() => {
-    checkConnection();
-  }, []);
-
-  useEffect(() => {
-    if (isConnected && currentAccount) {
-      loadCampaigns();
-    }
-  }, [isConnected, currentAccount]);
-
-  const checkConnection = async () => {
-    try {
-      const connected = await walletConnection.isConnected();
-      setIsConnected(connected);
-      
-      if (connected) {
-        const account = await walletConnection.getCurrentAccount();
-        setCurrentAccount(account);
-      }
-    } catch (err) {
-      setIsConnected(false);
-      setCurrentAccount(null);
-    }
-  };
 
   const loadCampaigns = async () => {
     if (!currentAccount) return;
@@ -213,18 +190,17 @@ export default function CampaignPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20 p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20 p-6 mt-25">
+      <div className="max-w-6xl mx-auto flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <div>
+          <div className="flex flex-col">
             <h1 className="text-3xl font-bold text-white mb-2">Campaign Dashboard</h1>
             <p className="text-gray-400">Manage your campaigns and track participation</p>
           </div>
           
-          <div className="flex items-center gap-4">
-            <WalletConnect />
-            {isConnected && (
+          <div className="items-center gap-4 hidden md:flex">
+            {connect && (
               <Button
                 onClick={() => setShowForm(true)}
                 className="px-6 py-2 rounded-xl font-semibold"
@@ -236,7 +212,7 @@ export default function CampaignPage() {
         </div>
 
         {/* Connection Warning */}
-        {!isConnected && (
+        {!connect && (
           <div className="mb-8 p-6 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl">
             <h3 className="text-yellow-300 font-medium mb-2">Wallet Not Connected</h3>
             <p className="text-yellow-200">Please connect your wallet to view and manage your campaigns.</p>
@@ -267,7 +243,7 @@ export default function CampaignPage() {
         )}
 
         {/* Campaigns Grid */}
-        {isConnected && !isLoading && (
+        {connect && !isLoading && (
           <>
             {campaigns.length === 0 ? (
               <div className="text-center py-12">

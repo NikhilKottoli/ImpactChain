@@ -3,6 +3,8 @@ import { socialMediaContract, initializeContract } from '../utils/contract';
 import { walletConnection } from '../utils/wallet';
 import { supabaseService } from '../utils/supabaseService';
 import type { Post, CreatePostParams } from '../types/contract';
+import { MiniKit, tokenToDecimals, Tokens } from '@worldcoin/minikit-js'
+import type { PayCommandInput } from '@worldcoin/minikit-js' 
 
 // Hook for wallet connection
 export const useWallet = () => {
@@ -230,40 +232,115 @@ export const useContract = () => {
   }, [executeTransaction]);
 
   // Cheer post
-  const cheerPost = useCallback(async (
+const cheerPost = useCallback(async (
     tokenId: number,
-    amount: string,
+    amount: string, // The amount of WLD to send (e.g., "1.5")
     onSuccess?: () => void
   ) => {
-    return executeTransaction(async () => {
-      const tx = await socialMediaContract.cheerPost(tokenId, amount);
-      await tx.wait();
+    // ⚠️ NOTE: We are removing the custom executeTransaction wrapper
+    // because MiniKit.commandsAsync.pay handles the transaction execution.
+    // Replace `executeTransaction(async () => { ... })` with direct async logic.
+
+    if (!MiniKit.isInstalled()) {
+      alert("Please open this app in the World App to use payment features.");
+      return false; // Return false or handle error appropriately
+    }
+
+    try {
+      // 1. Creating the transaction (Initiation)
+      // Call your backend to get a unique reference ID
+      const initiateRes = await fetch('/api/initiate-pay', {
+        method: 'POST',
+        // Optional: Send the intended recipient and amount to the backend for storage
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tokenId,
+          amount,
+          token: 'WLD',
+          recipient: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' // Replace with your whitelisted contract/user address
+        })
+      });
+
+      if (!initiateRes.ok) throw new Error('Failed to initiate payment reference.');
+      const { id: referenceId } = await initiateRes.json();
       
-      // Sync interaction to Supabase
-      try {
-        const currentAddress = await walletConnection.getCurrentAccount();
-        if (currentAddress) {
-          const post = await socialMediaContract.getPost(tokenId);
-          await supabaseService.recordInteraction({
-            postId: tokenId.toString(), // Using tokenId as postId for now
-            userAddress: currentAddress,
-            interactionType: 'cheer',
-            amount: amount,
-          });
+      const recipientAddress = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'; // **YOUR WHITELISTED RECIPIENT ADDRESS**
+      
+      const payload: PayCommandInput = {
+        reference: referenceId,
+        to: recipientAddress,
+        tokens: [
+          {
+            symbol: Tokens.WLD,
+            // Convert the user-entered amount string (e.g., "1.5") to token decimals
+            token_amount: tokenToDecimals(Number(amount), Tokens.WLD).toString(), 
+          },
+        ],
+        description: `Cheer for Post ID: ${tokenId} with ${amount} WLD`,
+      };
+
+      // 2. Sending the command
+      const { finalPayload } = await MiniKit.commandsAsync.pay(payload);
+
+      // Check for command success
+      if (finalPayload.status === 'success') {
+        const successPayload = finalPayload as MiniAppPaymentSuccessPayload;
+
+        // 3. Verifying the payment (Post-payment Backend Call)
+        // Call your backend to verify the transaction ID and update your database
+        const confirmRes = await fetch(`/api/confirm-payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payload: successPayload }),
+        });
+
+        const paymentConfirmation = await confirmRes.json();
+        
+        if (paymentConfirmation.success) {
+          // 🎉 Payment confirmed by your backend!
+          console.log('Payment successful and verified!');
           
-          // Update post earnings in Supabase
-          await supabaseService.updatePostEarnings(tokenId, post.totalEarnings.toString());
-          console.log('Cheer interaction synced to Supabase');
+          // You can now execute your *non-payment* contract logic if any,
+          // or solely rely on the backend verification to update earnings.
+          
+          // Sync interaction to Supabase (using the verified amount)
+          try {
+            // Note: The payment is already successful, so we sync the *cheer* and earnings
+            const currentAddress = successPayload.from; // Sender's address from the payload
+            
+            await supabaseService.recordInteraction({
+              postId: tokenId.toString(),
+              userAddress: currentAddress,
+              interactionType: 'cheer_payment', // Use a specific type for payments
+              amount: amount, // Store the human-readable amount
+            });
+
+            // Update post earnings in Supabase based on the *confirmed* payment
+            // You might want to get the actual earnings from the successful transaction data
+            // or simply add the cheer amount to the post's total WLD earnings.
+            await supabaseService.updatePostEarnings(tokenId, amount); // Add WLD amount
+            console.log('Cheer payment synced to Supabase');
+          } catch (syncError) {
+            console.error('Failed to sync cheer to Supabase:', syncError);
+          }
+
+          onSuccess?.();
+          return true;
+        } else {
+          // Backend verification failed (e.g., status is 'failed' after polling)
+          console.error('Payment failed backend verification.');
+          return false;
         }
-      } catch (syncError) {
-        console.error('Failed to sync cheer to Supabase:', syncError);
-        // Don't fail the transaction if Supabase sync fails
+      } else {
+        // MiniKit command was cancelled or returned an error
+        console.log(`Payment command failed or was cancelled. Status: ${finalPayload.status}`);
+        return false;
       }
-      
-      onSuccess?.();
-      return true;
-    });
-  }, [executeTransaction]);
+    } catch (error) {
+      console.error('An error occurred during the payment process:', error);
+      return false;
+    }
+  }, []);
 
   return {
     isLoading,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { walletConnection } from '../utils/wallet';
 import { formatAddress } from '../utils/wallet';
 
@@ -8,42 +8,10 @@ export const WalletConnect: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Check connection status on mount
-  useEffect(() => {
-    checkConnection();
-    
-    // Listen for account changes
-    const handleAccountsChanged = (accounts: string[]) => {
-      if (accounts.length === 0) {
-        setIsConnected(false);
-        setAddress(null);
-      } else {
-        checkConnection();
-      }
-    };
-
-    // Listen for network changes
-    const handleChainChanged = () => {
-      window.location.reload();
-    };
-
-    // Add event listeners
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', handleChainChanged);
-    }
-
-    return () => {
-      if (window.ethereum) {
-        window.ethereum.removeAllListeners('accountsChanged');
-        window.ethereum.removeAllListeners('chainChanged');
-      }
-    };
-  }, []);
-
-  const checkConnection = async () => {
+  // Centralized function to check and update connection status
+  const checkConnection = useCallback(async () => {
     try {
-      await walletConnection.initializeProvider();
+      // NOTE: We rely on walletConnection.getProvider() to be set by connect()
       const connected = await walletConnection.isConnected();
       if (connected) {
         const currentAddress = await walletConnection.getCurrentAccount();
@@ -59,33 +27,81 @@ export const WalletConnect: React.FC = () => {
       setIsConnected(false);
       setAddress(null);
     }
-  };
+  }, []);
 
-  const connect = async () => {
+  const connect = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     
     try {
       console.log('Connecting wallet...');
-      const { address } = await walletConnection.connect();
+      // This calls connect() which includes the MetaMask try/catch/fallback logic
+      const { address } = await walletConnection.connect(); 
       console.log('Wallet connected:', address);
       
       setAddress(address);
       setIsConnected(true);
+      
+      // Since the contract initialization happens after connect in useWallet hook,
+      // we don't call it here, but we rely on its success for transactions.
+
     } catch (err) {
       console.error('Error connecting wallet:', err);
+      // The error can now come from EITHER the browser connect OR the RPC fallback
       setError(err instanceof Error ? err.message : 'Failed to connect wallet');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const disconnect = () => {
+  const disconnect = useCallback(() => {
+    // This assumes walletConnection.disconnect() handles cleanup for both types
     walletConnection.disconnect();
     setIsConnected(false);
     setAddress(null);
     setError(null);
-  };
+    
+    // Force a UI refresh to clear any lingering connection state
+    // window.location.reload(); // Optional, but can ensure clean slate
+  }, []);
+
+  // Set up connection check and listeners on mount
+  useEffect(() => {
+    // 1. Initial check (also handles post-fallback state check)
+    checkConnection();
+    
+    // 2. Set up listeners ONLY if the browser provider object exists.
+    // RPC fallback connections cannot use these listeners.
+    if (window.ethereum) {
+      const handleAccountsChanged = (accounts: string[]) => {
+        // If accounts are available, check the full connection status
+        if (accounts.length > 0) {
+            checkConnection(); 
+        } else {
+            // No accounts means explicit disconnect or lock
+            disconnect();
+        }
+      };
+  
+      const handleChainChanged = () => {
+        // This is necessary for the browser wallet to reset its provider on network change
+        window.location.reload();
+      };
+      
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      window.ethereum.on('chainChanged', handleChainChanged);
+
+      return () => {
+        // Cleanup listeners
+        window.ethereum.removeAllListeners('accountsChanged');
+        window.ethereum.removeAllListeners('chainChanged');
+      };
+    }
+
+    // Return empty cleanup if window.ethereum doesn't exist (RPC fallback scenario)
+    return () => {};
+  }, [checkConnection, disconnect]);
+
 
   if (isLoading) {
     return (
@@ -119,7 +135,7 @@ export const WalletConnect: React.FC = () => {
     <div>
       <button
         onClick={connect}
-        className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium"
+        className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium hidden md:inline-block"
       >
         Connect Wallet
       </button>

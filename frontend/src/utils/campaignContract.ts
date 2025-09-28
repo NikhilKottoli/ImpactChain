@@ -4,7 +4,7 @@ import contractABI from '../contracts/abi2.json';
 
 // Campaign contract configuration
 export const CAMPAIGN_CONTRACT_CONFIG = {
-  address: '0x6102dfC400028d4E3d1469f7C7c99A48BECbd92E', // Campaign contract address
+  address: '0x6e28e229182CDdf5a278954542476788a81e8510', // Campaign contract address
   minStakeAmount: ethers.parseEther('0.00001'), // 0.001 ETH
   minBountyAmount: ethers.parseEther('0.0001') // 0.1 ETH
 };

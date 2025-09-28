@@ -34,7 +34,7 @@ export default function Navbar() {
       </Link>
 
       {/* Right: Wallet & Profile */}
-      <div className="flex items-center gap-2 bg-white px-2 py-2 rounded-full shadow-md z-[100]  fixed top-10 right-10">
+      <div className="md:flex items-center gap-2 bg-white px-2 py-2 rounded-full shadow-md z-[100] hidden md:block fixed top-10 right-10">
         <WalletConnect />
         <img
           src="https://t4.ftcdn.net/jpg/04/31/64/75/360_F_431647519_usrbQ8Z983hTYe8zgA7t1XVc5fEtqcpa.jpg"
