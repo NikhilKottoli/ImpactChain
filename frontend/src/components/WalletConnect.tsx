@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { walletConnection } from '../utils/wallet';
 import { formatAddress } from '../utils/wallet';
+import { EnsProfile } from './EnsProfile';
 
 export const WalletConnect: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -101,9 +102,11 @@ export const WalletConnect: React.FC = () => {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 px-3 py-2 bg-green-100 rounded-lg">
           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-          <span className="text-sm text-green-800 font-medium">
-            {formatAddress(address)}
-          </span>
+          <EnsProfile 
+            address={address as `0x${string}`}
+            size="sm"
+            showAddress={false}
+          />
         </div>
         <button
           onClick={disconnect}

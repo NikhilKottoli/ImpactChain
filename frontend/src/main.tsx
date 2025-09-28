@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { WagmiProvider } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import "./index.css";
 import Home from "./pages/home/Home";
@@ -19,14 +21,20 @@ import CreateCampaignForm from "./pages/Campaign/CampaignPageForm";
 import CampaignFeed from "./pages/Campaign/CampaignFeed";
 import DAOHomepage from "./pages/DAO/DAOhomepage";
 import VotingPage from "./pages/DAO/Votingpage";
+import SearchPage from "./pages/Search/SearchPage";
+import { config } from "./lib/wagmi";
 // import Home from "./pages/Home";
 // import About from "./pages/About";
 
+const queryClient = new QueryClient();
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <BgDynamic>
-        <Routes>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <BgDynamic>
+            <Routes>
           {/* Dashboard route (with Navbar) */}
           <Route
             path="/dashboard"
@@ -67,10 +75,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Route path="create-campaign" element={<CreateCampaignForm />} />
               <Route path="dao" element={<DAOHomepage />} />
               <Route path="voting/:uuid" element={<VotingPage />} />
+              <Route path="search" element={<SearchPage />} />
             </Route>
           </Route>
         </Routes>
       </BgDynamic>
     </BrowserRouter>
+      </QueryClientProvider>
+    </WagmiProvider>
   </React.StrictMode>
 );
