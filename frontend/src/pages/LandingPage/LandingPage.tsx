@@ -224,7 +224,9 @@ export default function LandingPage() {
                   data-scroll-reveal
                   data-fade="true"
                 >
-                  <span className="text-sm">Check out the ne features</span>
+                  <span className="text-sm">
+                    Have an impact idea? Share it & verify it on-chain
+                  </span>
                   <span className="block h-4 w-0.5 border-l "></span>
                   <div className="group-hover:bg-gray-50 size-6 overflow-hidden rounded-full duration-500">
                     <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
