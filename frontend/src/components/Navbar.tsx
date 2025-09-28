@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, CreditCard, Map, Repeat, Search, Users, Target } from "lucide-react";
+import { Bell, CreditCard, Map, Repeat, Search, Users, Target, DatabaseZap, Store } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { WalletConnect } from "./WalletConnect";
 
@@ -10,6 +10,8 @@ const navItems = [
   { icon: Map, label: "Map", path: "/map" },
   { icon: Search, label: "Search", path: "/search" },
   { icon: Bell, label: "Notifications", path: "/notifications" },
+  { icon: Store, label: "Marketplace", path: "/marketplace" },
+
 ];
 
 export default function Navbar() {
@@ -45,7 +47,7 @@ export default function Navbar() {
 
       {/* Bottom Tab Bar */}
       <nav className="w-full fixed left-0 lg:top-5 lg:bottom-auto bottom-5 px-6 z-40">
-        <div className="w-full max-w-[600px] bg-white flex justify-around items-center py-6 mx-auto rounded-full shadow-xl">
+        <div className="w-full max-w-[600px] bg-white flex justify-around items-center py-4 px-4 mb-2 mx-auto rounded-full shadow-xl">
           {navItems.map((item, idx) => (
             <Link
               key={item.label}
@@ -59,9 +61,7 @@ export default function Navbar() {
             >
               <item.icon className="mb-1 w-6 h-6" />
               <span className="text-xs">{item.label}</span>
-              {location.pathname === item.path && (
-                <div className="absolute -bottom-6 left-0 w-full h-1 bg-blue-400 rounded-full"></div>
-              )}
+
             </Link>
           ))}
         </div>

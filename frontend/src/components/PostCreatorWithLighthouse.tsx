@@ -5,6 +5,7 @@ import { lighthouseUtils } from "../utils/lighthouse";
 import { Button } from "./ui/button";
 import { id } from "ethers";
 import { walletConnection } from "@/utils/wallet";
+import { title } from "process";
 const account = await walletConnection.getCurrentAccount();
 
 export const PostCreatorWithLighthouse: React.FC = () => {
@@ -155,12 +156,28 @@ export const PostCreatorWithLighthouse: React.FC = () => {
       const data = await response.json();
       const post_id = data.id;
 
-      const labelled_post = await fetch(`http://localhost:3000/posts/${post_id}/classify`, {
-        method: 'PATCH',
+      // const labelled_post = await fetch(`http://localhost:3000/posts/${post_id}/classify`, {
+      //   method: 'PATCH',
+      // });
+      // const labelled_data = await labelled_post.json();
+      // console.log('Post saved to backend:', data);
+      // console.log('Post classified:', labelled_data);
+
+      console.log("Saving to data pipeline stats...");
+      await fetch("http://localhost:3000/posts/store-post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          creatorAddress: account,
+          title: formData.title,
+          ipfsHash: imageHash,
+          tokenId: tokenId,
+          uuid: post_id
+        }),
       });
-      const labelled_data = await labelled_post.json();
-      console.log('Post saved to backend:', data);
-      console.log('Post classified:', labelled_data);
+      console.log("Successfully saved to data pipeline stats.");
 
       // Reset form on success
       setFormData({

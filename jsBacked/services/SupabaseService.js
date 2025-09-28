@@ -69,7 +69,7 @@ class SupabaseService {
   async getAllPosts() {
     this._checkSupabase();
     const { data, error } = await supabase
-      .from('posts')
+      .from('social_posts')
       .select('*')
       .eq('is_active', true)
       .order('created_at', { ascending: false });
@@ -87,7 +87,7 @@ class SupabaseService {
   async getPostsByCreator(creator) {
     this._checkSupabase();
     const { data, error } = await supabase
-      .from('posts')
+      .from('social_posts')
       .select('*')
       .eq('creator', creator)
       .eq('is_active', true)
@@ -227,6 +227,40 @@ class SupabaseService {
   async deactivatePost(tokenId) {
     await this.updatePost(tokenId, { is_active: false });
   }
+
+/**
+ * Fetches posts that have a specific label in their 'ai_labels' array.
+ * Handles simple singular/plural forms (e.g., 'dog' vs 'dogs').
+ * @param {string} label - The label to search for.
+ * @returns {Promise<Array>} - A promise that resolves to an array of posts.
+ */
+async getPostsByLabel(label) {
+    this._checkSupabase();
+    const lowerLabel = label.toLowerCase();
+    let labelVariations = [lowerLabel];
+
+    // Create simple plural/singular variations
+    if (lowerLabel.endsWith('s')) {
+        labelVariations.push(lowerLabel.slice(0, -1)); // 'dogs' -> 'dog'
+    } else {
+        labelVariations.push(lowerLabel + 's'); // 'dog' -> 'dogs'
+    }
+
+    const { data, error } = await supabase
+        .from('social_posts')
+        .select('token_id') // Select only the id as requested
+        .filter('is_active', 'eq', true)
+        // 'cs' is the 'contains' operator for arrays in Supabase/PostgREST
+        // It checks if the 'ai_labels' array contains any of the values in 'labelVariations'
+        .filter('ai_labels', 'cs', `{${labelVariations.join(',')}}`);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data;
+}
+  
 
   // ===== USERS =====
 
@@ -398,6 +432,60 @@ class SupabaseService {
       // Log the error but continue execution
     }
   }
+
+  /**
+   * Create an entry in the data_pipeline_stats table.
+   */
+  async createPipelineStat(statData) {
+    this._checkSupabase();
+    const { data, error } = await supabase
+      .from('data_pipeline_stats')
+      .insert([
+        {
+          // Correctly access the properties from the passed object
+          token_id: statData.token_id,
+          uuid: statData.uuid,
+          ipfshash: statData.ipfs_hash, // Also correct the ipfs hash key
+          labels: statData.labels,
+          ownerAddress: statData.ownerAddress
+        }
+      ]);
+
+    if (error) {
+      console.error('Error creating pipeline stat:', error.message);
+      throw new Error(`Failed to create pipeline stat: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  /**
+   * Fetches token_ids from the data_pipeline_stats table that match a given label.
+   * Now searches within a comma-separated text string.
+   * @param {string} label - The label to search for within the 'labels' string.
+   * @returns {Promise<number[]>} - A promise that resolves to an array of token_ids.
+   */
+  async getTokenIdsByLabelFromPipeline(label) {
+    this._checkSupabase();
+    const lowerLabel = label.toLowerCase();
+
+    // Use the 'like' operator for text-based substring search.
+    // The '%' are wildcards, so this finds rows where the 'labels' column
+    // contains the label string anywhere inside it.
+    const { data, error } = await supabase
+      .from('data_pipeline_stats')
+      .select('token_id')
+      .like('labels', `%${lowerLabel}%`);
+
+    if (error) {
+      console.error(`Error fetching token_ids by label from pipeline: ${error.message}`);
+      throw new Error(`Failed to fetch token_ids by label: ${error.message}`);
+    }
+
+    // Return a flat array of token_ids
+    return data ? data.map(item => item.token_id) : [];
+  }
+
 }
 
 // Export singleton instance
