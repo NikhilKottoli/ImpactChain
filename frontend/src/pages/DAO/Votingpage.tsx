@@ -9,6 +9,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { EnsProfile } from "@/components/EnsProfile";
 import {
   castVote,
   getDAOUsers,
@@ -305,11 +306,12 @@ const VotingPage: React.FC = () => {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg">
-                        {userDetails.userAddress.slice(0, 6)}...
-                        {userDetails.userAddress.slice(-4)}
-                      </CardTitle>
-                      <CardDescription>
+                      <EnsProfile 
+                        address={userDetails.userAddress as `0x${string}`}
+                        size="md"
+                        showAddress={false}
+                      />
+                      <CardDescription className="mt-1">
                         Votes: {userDetails.totalVotes} | Yes:{" "}
                         {userDetails.yesVotes} | No: {userDetails.noVotes}
                       </CardDescription>
