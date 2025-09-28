@@ -12,7 +12,7 @@ interface EnsProfileProps {
 export const EnsProfile: React.FC<EnsProfileProps> = ({ 
   address, 
   name, 
-  showAddress = true, 
+  showAddress = false, 
   size = 'md',
   className = ''
 }) => {
@@ -46,7 +46,7 @@ export const EnsProfile: React.FC<EnsProfileProps> = ({
         <span className={`font-semibold ${textSizeClasses[size]}`}>
           {displayName}
         </span>
-        {showAddress && address && (
+        {showAddress && address && !ensName && (
           <span className={`text-gray-500 ${textSizeClasses[size]}`}>
             {address.slice(0, 6)}...{address.slice(-4)}
           </span>

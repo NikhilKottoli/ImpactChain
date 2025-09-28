@@ -107,7 +107,7 @@ export const EnsCampaignPage: React.FC<EnsCampaignPageProps> = ({
                   address="0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
                   name="vitalik.eth"
                   size="md"
-                  showAddress={true}
+                  showAddress={false}
                 />
               </div>
               <div>
@@ -116,7 +116,7 @@ export const EnsCampaignPage: React.FC<EnsCampaignPageProps> = ({
                   address="0x1234567890123456789012345678901234567890"
                   name="nick.eth"
                   size="md"
-                  showAddress={true}
+                  showAddress={false}
                 />
               </div>
             </div>

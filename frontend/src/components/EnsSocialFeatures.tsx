@@ -156,7 +156,7 @@ export const EnsSocialFeatures: React.FC<EnsSocialFeaturesProps> = ({
                       address={searchQuery.includes('0x') ? searchQuery as `0x${string}` : undefined}
                       name={searchQuery.includes('0x') ? undefined : searchQuery}
                       size="sm"
-                      showAddress={true}
+                      showAddress={false}
                     />
                     <Button 
                       size="sm"

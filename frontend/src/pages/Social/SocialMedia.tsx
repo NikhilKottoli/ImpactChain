@@ -334,7 +334,7 @@ function PostCard({ post }: PostCardProps) {
           <EnsProfile 
             address={post.creator as `0x${string}`}
             size="sm"
-            showAddress={true}
+            showAddress={false}
           />
         </div>
 
@@ -429,7 +429,7 @@ function ProfileSection({
           <EnsProfile 
             address={address as `0x${string}`}
             size="lg"
-            showAddress={true}
+            showAddress={false}
           />
           <div>
             <p className="text-gray-500 text-sm">

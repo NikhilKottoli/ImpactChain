@@ -138,7 +138,7 @@ export const EnsProfileBuilder: React.FC<ProfileBuilderProps> = ({
               address={address}
               name={ensName}
               size="lg"
-              showAddress={true}
+              showAddress={false}
             />
             <div className="flex-1">
               <p className="text-sm text-gray-600 mb-2">

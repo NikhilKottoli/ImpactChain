@@ -61,6 +61,7 @@ export default function SearchPage() {
                 address={displayAddress as `0x${string}`}
                 name={displayName}
                 size="lg"
+                showAddress={false}
                 className="mb-4"
               />
             </div>

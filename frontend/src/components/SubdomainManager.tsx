@@ -176,11 +176,11 @@ export const SubdomainManager: React.FC<SubdomainManagerProps> = ({
                     <div>
                       <label className="text-sm font-medium text-gray-700">Owner</label>
                       <div className="mt-1">
-                        <EnsProfile 
-                          address={subdomain.owner as `0x${string}`}
-                          size="sm"
-                          showAddress={true}
-                        />
+                      <EnsProfile 
+                        address={subdomain.owner as `0x${string}`}
+                        size="sm"
+                        showAddress={false}
+                      />
                       </div>
                     </div>
                     <div>
