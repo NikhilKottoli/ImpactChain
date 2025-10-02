@@ -5,6 +5,7 @@ import { lighthouseUtils } from "../utils/lighthouse";
 import { Button } from "./ui/button";
 import { id } from "ethers";
 import { walletConnection } from "@/utils/wallet";
+import { title } from "process";
 const account = await walletConnection.getCurrentAccount();
 
 export const PostCreatorWithLighthouse: React.FC = () => {
@@ -76,9 +77,6 @@ export const PostCreatorWithLighthouse: React.FC = () => {
     let imageHash = "";
     let metadataHash = "";
     let tokenId = 0;
-    // Assuming 'creator' (wallet address) is available from a context or prop
-    // Replace 'yourCreatorWalletAddress' with the actual source (e.g., walletContext.address)
-    const creator = "yourCreatorWalletAddress";
 
     try {
       // Step 1: Upload image and metadata to Lighthouse
@@ -156,7 +154,30 @@ export const PostCreatorWithLighthouse: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log("Post saved to backend:", data);
+      const post_id = data.id;
+
+      // const labelled_post = await fetch(`http://localhost:3000/posts/${post_id}/classify`, {
+      //   method: 'PATCH',
+      // });
+      // const labelled_data = await labelled_post.json();
+      // console.log('Post saved to backend:', data);
+      // console.log('Post classified:', labelled_data);
+
+      console.log("Saving to data pipeline stats...");
+      await fetch("http://localhost:3000/posts/store-post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          creatorAddress: account,
+          title: formData.title,
+          ipfsHash: imageHash,
+          tokenId: tokenId,
+          uuid: post_id
+        }),
+      });
+      console.log("Successfully saved to data pipeline stats.");
 
       // Reset form on success
       setFormData({

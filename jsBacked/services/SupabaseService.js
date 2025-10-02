@@ -5,6 +5,7 @@ class SupabaseService {
   /**
    * Utility to check if supabase is configured
    */
+
   _checkSupabase() {
     if (!supabase) {
       throw new Error('Supabase not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY');
@@ -41,6 +42,7 @@ class SupabaseService {
       title: postData.title,
       description: postData.description,
       ipfs_hash: postData.ipfsHash,
+      location: postData.location || null,
       like_count: 0,
       total_earnings: '0',
       is_active: true,
@@ -67,7 +69,7 @@ class SupabaseService {
   async getAllPosts() {
     this._checkSupabase();
     const { data, error } = await supabase
-      .from('posts')
+      .from('social_posts')
       .select('*')
       .eq('is_active', true)
       .order('created_at', { ascending: false });
@@ -85,7 +87,7 @@ class SupabaseService {
   async getPostsByCreator(creator) {
     this._checkSupabase();
     const { data, error } = await supabase
-      .from('posts')
+      .from('social_posts')
       .select('*')
       .eq('creator', creator)
       .eq('is_active', true)
@@ -96,6 +98,26 @@ class SupabaseService {
     }
 
     return data || [];
+  }
+
+  /**
+   * Update post data by its primary key (UUID)
+   */
+  async updatePost(id, updates) {
+    this._checkSupabase();
+    const { data, error } = await supabase
+      .from('social_posts')
+      .update(updates)
+      .eq('id', id) // Use the primary key 'id' column
+      .select()
+      .single();
+
+    if (error) {
+      console.error(`Error updating post ${id}:`, error.message);
+      throw new Error(`Failed to update post ${id}`);
+    }
+
+    return data;
   }
 
   async getAllUsers(){
@@ -112,6 +134,29 @@ class SupabaseService {
     return data || [];
   }
 
+  /**
+   * Get a single post by its primary key (UUID).
+   * This is needed for the AI classification route.
+   */
+  async getPostById(id) {
+    this._checkSupabase();
+    const { data, error } = await supabase
+      .from('social_posts')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error(`Error fetching post with ID ${id}:`, error.message);
+      // Return null if not found, throw for other errors
+      if (error.code === 'PGRST116') return null;
+      throw new Error(`Failed to fetch post with ID ${id}`);
+    }
+
+    return data;
+  }
+
+
 
   /**
    * Get a single post by token ID
@@ -119,7 +164,7 @@ class SupabaseService {
   async getPostByTokenId(tokenId) {
     this._checkSupabase();
     const { data, error } = await supabase
-      .from('posts')
+      .from('social_posts')
       .select('*')
       .eq('token_id', tokenId)
       .eq('is_active', true)
@@ -136,25 +181,30 @@ class SupabaseService {
   }
 
   /**
-   * Update post data
+   * Update post data by its primary key (UUID)
    */
-  async updatePost(tokenId, updates) {
+  async updatePost(id, updates) {
     this._checkSupabase();
     const { data, error } = await supabase
-      .from('posts')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('token_id', tokenId)
+      .from('social_posts')
+      .update(updates)
+      .eq('id', id) // Use the primary key 'id' column
       .select()
       .single();
 
     if (error) {
-      throw new Error(`Failed to update post: ${error.message}`);
+      console.error(`Error updating post ${id}:`, error.message);
+      throw new Error(`Failed to update post ${id}`);
     }
 
     return data;
+  }
+
+  /**
+   * Update by aiLabels by Post ID
+   */
+  async updatePostAILabels(id, aiLabels) {
+    await this.updatePost(id, aiLabels);
   }
 
   /**
@@ -177,6 +227,40 @@ class SupabaseService {
   async deactivatePost(tokenId) {
     await this.updatePost(tokenId, { is_active: false });
   }
+
+/**
+ * Fetches posts that have a specific label in their 'ai_labels' array.
+ * Handles simple singular/plural forms (e.g., 'dog' vs 'dogs').
+ * @param {string} label - The label to search for.
+ * @returns {Promise<Array>} - A promise that resolves to an array of posts.
+ */
+async getPostsByLabel(label) {
+    this._checkSupabase();
+    const lowerLabel = label.toLowerCase();
+    let labelVariations = [lowerLabel];
+
+    // Create simple plural/singular variations
+    if (lowerLabel.endsWith('s')) {
+        labelVariations.push(lowerLabel.slice(0, -1)); // 'dogs' -> 'dog'
+    } else {
+        labelVariations.push(lowerLabel + 's'); // 'dog' -> 'dogs'
+    }
+
+    const { data, error } = await supabase
+        .from('social_posts')
+        .select('token_id') // Select only the id as requested
+        .filter('is_active', 'eq', true)
+        // 'cs' is the 'contains' operator for arrays in Supabase/PostgREST
+        // It checks if the 'ai_labels' array contains any of the values in 'labelVariations'
+        .filter('ai_labels', 'cs', `{${labelVariations.join(',')}}`);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data;
+}
+  
 
   // ===== USERS =====
 
@@ -348,6 +432,60 @@ class SupabaseService {
       // Log the error but continue execution
     }
   }
+
+  /**
+   * Create an entry in the data_pipeline_stats table.
+   */
+  async createPipelineStat(statData) {
+    this._checkSupabase();
+    const { data, error } = await supabase
+      .from('data_pipeline_stats')
+      .insert([
+        {
+          // Correctly access the properties from the passed object
+          token_id: statData.token_id,
+          uuid: statData.uuid,
+          ipfshash: statData.ipfs_hash, // Also correct the ipfs hash key
+          labels: statData.labels,
+          ownerAddress: statData.ownerAddress
+        }
+      ]);
+
+    if (error) {
+      console.error('Error creating pipeline stat:', error.message);
+      throw new Error(`Failed to create pipeline stat: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  /**
+   * Fetches token_ids from the data_pipeline_stats table that match a given label.
+   * Now searches within a comma-separated text string.
+   * @param {string} label - The label to search for within the 'labels' string.
+   * @returns {Promise<number[]>} - A promise that resolves to an array of token_ids.
+   */
+  async getTokenIdsByLabelFromPipeline(label) {
+    this._checkSupabase();
+    const lowerLabel = label.toLowerCase();
+
+    // Use the 'like' operator for text-based substring search.
+    // The '%' are wildcards, so this finds rows where the 'labels' column
+    // contains the label string anywhere inside it.
+    const { data, error } = await supabase
+      .from('data_pipeline_stats')
+      .select('token_id')
+      .like('labels', `%${lowerLabel}%`);
+
+    if (error) {
+      console.error(`Error fetching token_ids by label from pipeline: ${error.message}`);
+      throw new Error(`Failed to fetch token_ids by label: ${error.message}`);
+    }
+
+    // Return a flat array of token_ids
+    return data ? data.map(item => item.token_id) : [];
+  }
+
 }
 
 // Export singleton instance

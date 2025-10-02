@@ -1,14 +1,31 @@
 import { ethers, Contract } from 'ethers';
 import { walletConnection } from './wallet';
-import contractABI from '../contracts/abi.json';
-import type { Post, Interaction, CreatePostParams, ContractConfig } from '../types/contract';
+// NOTE: You will need a combined ABI file or separate ones. 
+// For simplicity, this example assumes you have a way to get the ABIs.
+// Let's assume you have separate ABI files for clarity.
+import socialMediaAbiJson from '../contracts/SocialMediaABI.json';
+import datasetRegistryAbiJson from '../contracts/DatasetRegistryABI.json';
+import dataCoinAbiJson from '../contracts/DataCoinABI.json';
 
-// Contract configuration for Sepolia testnet
-export const CONTRACT_CONFIG: ContractConfig = {
-  address: '0x105478CB653F4f26142c9b8daF55f56c97357A89', // Your contract address
-  ownerAddress: '0x42bB782189817C7aA9c7a8C1BaeDf194c9d73f6e', // Your owner address
-  minCheerAmount: ethers.parseEther('0.01') // 0.01 ETH
+// This interface should be in your types/contract.ts file
+export interface FullContractConfig {
+  socialMediaAddress: string;
+  datasetRegistryAddress: string;
+  dataCoinAddress: string;
+  daoTreasuryAddress: string;
+  ownerAddress: string;
+  minCheerAmount: bigint;
+}
+
+export const CONTRACT_CONFIG: FullContractConfig = {
+  socialMediaAddress: '0x105478CB653F4f26142c9b8daF55f56c97357A89',
+  datasetRegistryAddress: '0x101332f0e23EfB94410441CB678A50800d61BE87',
+  dataCoinAddress: '0xf7773581642bb74795B30F34C862309044276161',
+  daoTreasuryAddress: '0xD1CB0380733d78011B572aB61A54d5d7E9CF1191',
+  ownerAddress: '0x42bB782189817C7aA9c7a8C1BaeDf194c9d73f6e',
+  minCheerAmount: ethers.parseEther('0.0001')
 };
+// ==================================================================
 
 // Sepolia testnet configuration
 export const SEPOLIA_CONFIG = {
@@ -42,7 +59,7 @@ export class SocialMediaContract {
       throw new Error('No signer available');
     }
 
-    this.contract = new Contract(CONTRACT_CONFIG.address, contractABI, signer);
+    this.contract = new Contract(CONTRACT_CONFIG.socialMediaAddress, socialMediaAbiJson, signer);
   }
 
   // Ensure we're on Sepolia testnet
@@ -109,7 +126,7 @@ export class SocialMediaContract {
     if (!this.provider) {
       throw new Error('Provider not initialized');
     }
-    return new Contract(CONTRACT_CONFIG.address, contractABI, this.provider);
+    return new Contract(CONTRACT_CONFIG.socialMediaAddress, socialMediaAbiJson, this.provider);
   }
 
   // Ensure contract is initialized
@@ -297,7 +314,7 @@ export class SocialMediaContract {
 
   // Get contract address
   getContractAddress(): string {
-    return CONTRACT_CONFIG.address;
+    return CONTRACT_CONFIG.socialMediaAddress;
   }
 
   // Get owner address

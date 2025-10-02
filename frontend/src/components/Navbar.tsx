@@ -6,7 +6,7 @@ import {
   Repeat,
   Search,
   Users,
-  Target,
+  Target, DatabaseZap, Store,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { WalletConnect } from "./WalletConnect";
@@ -18,6 +18,8 @@ const navItems = [
   { icon: Map, label: "Map", path: "/map" },
   { icon: Search, label: "Search", path: "/search" },
   { icon: Bell, label: "Notifications", path: "/notifications" },
+  { icon: Store, label: "Marketplace", path: "/marketplace" },
+
 ];
 
 export default function Navbar() {

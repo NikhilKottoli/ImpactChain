@@ -18,7 +18,9 @@ import LandingPage from "./pages/LandingPage/LandingPage";
 import BgDynamic from "./components/BgDynamic";
 import CampaignPage from "./pages/Campaign/CampaignPage";
 import CreateCampaignForm from "./pages/Campaign/CampaignPageForm";
+import DataPage from "./pages/Activity/Data";
 import CampaignFeed from "./pages/Campaign/CampaignFeed";
+import MyDatasetsPage from "./pages/MyDatasets";
 import DAOHomepage from "./pages/DAO/DAOhomepage";
 import VotingPage from "./pages/DAO/Votingpage";
 import SearchPage from "./pages/Search/SearchPage";
@@ -85,6 +87,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Route path="social-features" element={<SocialFeaturesPage />} />
               <Route path="campaign-hub" element={<CampaignHubPage />} />
               <Route path="campaign/:uuid" element={<CampaignFeed />} />
+              <Route path="marketplace" element={<DataPage />} />
+              <Route path="my-datasets" element={<MyDatasetsPage />} />
             </Route>
           </Route>
         </Routes>
