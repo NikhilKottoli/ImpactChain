@@ -3,13 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { PostCreatorWithLighthouse } from "../../components/PostCreatorWithLighthouse";
 import { SimpleCreatePost } from "../../components/SimpleCreatePost";
 import { WalletConnect } from "../../components/WalletConnect";
-import { useWallet } from "../../hooks/useContract"; // 🛑 Re-imported useWallet
 import { Button } from "../../components/ui/button";
 
 export default function CreatePost() {
   const navigate = useNavigate();
   // 🛑 Retrieve isConnected status
-  const { isConnected, connect, isLoading } = useWallet(); 
   const [hasLighthouseKey, setHasLighthouseKey] = useState(true); 
 
   useEffect(() => {
@@ -28,7 +26,7 @@ export default function CreatePost() {
     : SimpleCreatePost;
 
   return (
-    <div className="min-h-screen pt-20 flex flex-col md:flex-row px-4 md:px-32">
+    <div className="h-150 pt-20 flex flex-col md:flex-row px-4 md:px-32">
       {/* Left Column - fixed on desktop, top on mobile */}
       <div className="w-full md:w-1/3 md:fixed md:top-40 md:left-0 md:h-[calc(100vh-5rem)] md:overflow-y-auto p-4 md:p-8 md:ml-32">
         {/* Header */}

@@ -286,7 +286,7 @@ export default function LandingPage() {
                     </Link>
                   </div>
                   <Link to="/create">
-                    <button className="px-8 py-3 bg-white text-[#26AFE0] font-semibold rounded-lg hover:bg-gray-100 transition-all shadow-lg">
+                    <button className="hidden px-8 py-3 bg-white text-[#26AFE0] font-semibold rounded-lg hover:bg-gray-100 transition-all shadow-lg">
                       Create Impact Post
                     </button>
                   </Link>
@@ -390,7 +390,7 @@ export default function LandingPage() {
               </button>
             </Link>
             <Link to="/create">
-              <button className="px-8 py-3 bg-black/5 text-[#26AFE0] rounded-lg shadow hover:bg-black/10">
+              <button className="hidden px-8 py-3 bg-black/5 text-[#26AFE0] rounded-lg shadow hover:bg-black/10">
                 Create Impact Post
               </button>
             </Link>

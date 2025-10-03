@@ -72,7 +72,7 @@ export default function SocialMedia() {
           {/* Create Post Button */}
           <button
             onClick={() => navigate("/createpost")}
-            disabled={!isConnected}
+            disabled={false}
             className="px-6 py-2 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:from-gray-300 disabled:to-gray-400 text-white font-medium rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             <svg

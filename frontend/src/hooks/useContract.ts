@@ -6,6 +6,7 @@ import type { Post, CreatePostParams } from '../types/contract';
 import { MiniKit, tokenToDecimals, Tokens } from '@worldcoin/minikit-js'
 import type { PayCommandInput } from '@worldcoin/minikit-js' 
 
+
 // Hook for wallet connection
 export const useWallet = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -132,13 +133,6 @@ export const useContract = () => {
   ): Promise<number | null> => {
     return executeTransaction(async () => {
       console.log('Creating post with params:', params);
-      
-      // Initialize contract if needed
-      try {
-        await socialMediaContract.initialize();
-      } catch (error) {
-        console.warn('Contract already initialized or initialization failed:', error);
-      }
       
       const tx = await socialMediaContract.createPost(params);
       console.log('Transaction sent:', tx.hash);
@@ -353,18 +347,28 @@ const cheerPost = useCallback(async (
 };
 
 // Hook for fetching posts
-export const usePosts = (limit: number = 10) => {
+// Hook for fetching posts
+export const usePosts = (limit: number = 3) => {
+
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
 
+  // Helper function to create a delay
+  const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
   const loadPosts = useCallback(async (offset: number = 0, append: boolean = false) => {
+    
+    // Initial 1-second stabilization delay (Retained from previous fix)
+    console.log("Starting network fetch with 1s stabilization delay...");
+    await delay(1000); 
+    
     setIsLoading(true);
     setError(null);
 
     try {
-      const totalSupply = await socialMediaContract.getTotalSupply();
+      const totalSupply = await socialMediaContract.getTotalSupply(); 
       
       if (offset >= totalSupply) {
         setHasMore(false);
@@ -375,6 +379,7 @@ export const usePosts = (limit: number = 10) => {
       const start = Math.max(1, totalSupply - offset);
       const end = Math.max(1, start - limit + 1);
 
+      // Step 2: Throttle the loop that fetches individual posts
       for (let i = start; i >= end; i--) {
         try {
           const post = await socialMediaContract.getPost(i);
@@ -382,18 +387,24 @@ export const usePosts = (limit: number = 10) => {
             newPosts.push(post);
           }
         } catch (err) {
-          console.warn(`Failed to fetch post ${i}:`, err);
+          console.warn(`Failed to fetch post ${i} (Contract Read Error):`, err);
         }
+        
+        // ✅ FIX: Add a small delay (200ms) between each individual request
+        // This prevents hitting the RPC "requests per second" rate limit.
+        await delay(200); 
       }
 
       setPosts(prev => append ? [...prev, ...newPosts] : newPosts);
       setHasMore(end > 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load posts');
+      // Improved error message to reflect the rate limit issue
+      console.error('RPC Rate Limit Error or Failed to load posts:', err);
+      setError('Failed to load posts. You may be exceeding the public RPC rate limit. Please try refreshing in a moment.');
     } finally {
       setIsLoading(false);
     }
-  }, [limit]);
+  }, [limit]); // Dependencies remain the same
 
   const loadMore = useCallback(() => {
     if (!isLoading && hasMore) {
