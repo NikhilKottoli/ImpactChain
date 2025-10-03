@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PostCreatorWithLighthouse } from "../../components/PostCreatorWithLighthouse";
 import { SimpleCreatePost } from "../../components/SimpleCreatePost";
 import { WalletConnect } from "../../components/WalletConnect";
 import { Button } from "../../components/ui/button";
-
+import { useWallet } from "../../hooks/useWallet";
 export default function CreatePost() {
   const navigate = useNavigate();
   // 🛑 Retrieve isConnected status
   const [hasLighthouseKey, setHasLighthouseKey] = useState(true); 
+
+  // 🛑 Add wallet connection state
+  const { isConnected, isLoading, connect } = useWallet();
 
   useEffect(() => {
     // Check if Lighthouse API key is configured (we have a default one)
@@ -16,6 +19,7 @@ export default function CreatePost() {
       import.meta.env.VITE_LIGHTHOUSE_API_KEY ||
       "239777d2.c5fe3f8d06e34c27be7f7d5cf99f007d";
     setHasLighthouseKey(!!apiKey);
+  }, []);
   }, []);
 
   // --- Component Logic ---
